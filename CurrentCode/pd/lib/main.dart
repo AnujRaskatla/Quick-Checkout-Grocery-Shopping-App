@@ -3,14 +3,58 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:csv/csv.dart'; // for CSV parsing
 import 'package:http/http.dart' as http;
-import 'package:pdf/widgets.dart' as pw;
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ScannedItemsModel(),
+      child: const MyApp(),
+    ),
+  );
+}
 
 class LoginPage extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
 
   LoginPage({super.key});
+
+  Future<void> _signInWithGoogle(BuildContext context) async {
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? googleSignInAccount =
+          await googleSignIn.signIn();
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication =
+            await googleSignInAccount.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken,
+        );
+        final UserCredential authResult =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+        final User? user = authResult.user;
+
+        if (user != null) {
+          // Navigate to the WelcomePage or perform any necessary actions
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  WelcomePage(userName: user.displayName ?? ''),
+            ),
+          );
+        }
+      }
+    } catch (error) {
+      print("Google Sign-In Error: $error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,31 +85,14 @@ class LoginPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                String enteredName = _nameController.text;
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WelcomePage(userName: enteredName),
-                  ),
-                );
-              },
-              child: const Text('Submit'),
+              onPressed: () => _signInWithGoogle(context),
+              child: const Text('Sign in with Google'),
             ),
           ],
         ),
       ),
     );
   }
-}
-
-void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => ScannedItemsModel(),
-      child: const MyApp(),
-    ),
-  );
 }
 
 class ScannedItemsModel extends ChangeNotifier {
@@ -276,7 +303,6 @@ class ViewListPage extends StatefulWidget {
 
 class ViewListPageState extends State<ViewListPage>
     with AutomaticKeepAliveClientMixin {
-  GlobalKey viewListKey = GlobalKey();
   Map<String, List<String>> barcodeToInfoMap = {};
   String csvData = '';
   double receivedWeight = 0.0; // Added received weight
@@ -379,36 +405,29 @@ class ViewListPageState extends State<ViewListPage>
 
   @override
   bool get wantKeepAlive => true;
-  Future<File> generateAndSavePDF(List<DataRow> rows) async {
-    final pdf = pw.Document();
 
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Table(
-            border: pw.TableBorder.all(width: 1),
-            children: [
-              for (var row in rows)
-                pw.TableRow(
-                  children: row.cells.map((cell) {
-                    return pw.Container(
-                      padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text(cell.child!.toString()),
-                    );
-                  }).toList(),
-                ),
-            ],
-          );
-        },
-      ),
-    );
+  Future<void> _addScannedItemsToFirestore() async {
+    final scannedItemsModel =
+        Provider.of<ScannedItemsModel>(context, listen: false);
+    final CollectionReference scannedItemsCollection =
+        FirebaseFirestore.instance.collection('scannedItems');
 
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/table_data.pdf');
-    await file.writeAsBytes(await pdf.save());
+    for (String scannedItem in scannedItemsModel.scannedItems) {
+      int quantity = scannedItemsModel.getQuantity(scannedItem);
+      List<String> info =
+          barcodeToInfoMap[scannedItem] ?? ['N/A', '0.0', '0.0'];
+      String itemName = info[0];
+      double price = double.tryParse(info[1]) ?? 0.0;
+      double weight = double.tryParse(info[2]) ?? 0.0;
 
-    print('PDF saved at: ${file.path}');
-    return file;
+      await scannedItemsCollection.add({
+        'itemName': itemName,
+        'barcode': scannedItem,
+        'quantity': quantity,
+        'price': price,
+        'weight': weight,
+      });
+    }
   }
 
   @override
@@ -473,22 +492,7 @@ class ViewListPageState extends State<ViewListPage>
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 onPressed: () async {
-                  List<DataRow> dataRows = [];
-                  for (int index = 0; index < scannedItems.length; index++) {
-                    dataRows.add(_buildDataRow(
-                        scannedItemsModel, scannedItems[index], index));
-                  }
-                  dataRows.add(_buildTotalRow(scannedItemsModel, totalWeight));
-
-                  File pdfFile = await generateAndSavePDF(dataRows);
-
-                  // Now, manually copy the file to the Downloads folder
-                  final downloadsDirectory =
-                      Directory('/storage/emulated/0/Download');
-                  final copiedFile = await pdfFile
-                      .copy('${downloadsDirectory.path}/table_data.pdf');
-
-                  print('PDF copied to Downloads folder: ${copiedFile.path}');
+                  await _addScannedItemsToFirestore();
                 },
                 child: const Text('Done Shopping'),
               ),

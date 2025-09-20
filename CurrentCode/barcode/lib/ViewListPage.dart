@@ -9,6 +9,8 @@ import 'ScannedItemsModel.dart';
 import 'PaymentPage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'GlobalData.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'ManualBarcodeEntryDialog.dart';
 
 class ViewListPage extends StatefulWidget {
   final ScannedItemsModel scannedItemsModel; // Add this line
@@ -171,69 +173,136 @@ class ViewListPageState extends State<ViewListPage>
         ),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SingleChildScrollView(
-              child: DataTable(
-                headingTextStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-                dataTextStyle:
-                    const TextStyle(fontSize: 14, color: Colors.black87),
-                horizontalMargin: 20,
-                columnSpacing: 20.0,
-                columns: const <DataColumn>[
-                  DataColumn(label: Text('Qty.')),
-                  DataColumn(label: Text('S.no')),
-                  DataColumn(label: Text('Name')),
-                  DataColumn(label: Text('Barcode Number')),
-                  DataColumn(label: Text('Price')),
-                  DataColumn(label: Text('Weight')),
-                ],
-                rows: [
-                  for (int index = 0; index < scannedItems.length; index++)
-                    _buildDataRow(
-                        scannedItemsModel, scannedItems[index], index),
-                  _buildTotalRow(scannedItemsModel, totalWeight),
-                ],
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: ElevatedButton(
-              onPressed: () async {
-                await PdfGenerator.createPDF(scannedItems, barcodeToInfoMap,
-                    scannedItemsModel, GlobalData.phoneNumber);
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PaymentPage(
-                      scannedItems: scannedItems,
-                      barcodeToInfoMap: barcodeToInfoMap,
-                      scannedItemsModel: scannedItemsModel,
-                      phoneNumber: GlobalData.phoneNumber,
-                    ),
+      body: SingleChildScrollView(
+        // Wrap your Column with SingleChildScrollView
+        child: Column(
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                child: DataTable(
+                  headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black,
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                primary: Colors.grey[300],
-                onPrimary: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(color: Colors.grey[300]!),
+                  dataTextStyle:
+                      const TextStyle(fontSize: 14, color: Colors.black87),
+                  horizontalMargin: 20,
+                  columnSpacing: 20.0,
+                  columns: const <DataColumn>[
+                    DataColumn(label: Text('Qty.')),
+                    DataColumn(label: Text('S.no')),
+                    DataColumn(label: Text('Name')),
+                    DataColumn(label: Text('Barcode Number')),
+                    DataColumn(label: Text('Price')),
+                    DataColumn(label: Text('Weight')),
+                  ],
+                  rows: [
+                    for (int index = 0; index < scannedItems.length; index++)
+                      _buildDataRow(
+                          scannedItemsModel, scannedItems[index], index),
+                    _buildTotalRow(scannedItemsModel, totalWeight),
+                  ],
                 ),
               ),
-              child: Text('Done Shopping'),
             ),
-          ),
-        ],
+            SizedBox(height: 30), // Add some spacing
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      String barcode = await FlutterBarcodeScanner.scanBarcode(
+                        '#FF0000',
+                        'Cancel',
+                        true,
+                        ScanMode.BARCODE,
+                      );
+
+                      if (barcode.isNotEmpty) {
+                        ScannedItemsModel scannedItemsModel =
+                            Provider.of<ScannedItemsModel>(context,
+                                listen: false);
+
+                        if (scannedItemsModel.scannedItems.contains(barcode)) {
+                          scannedItemsModel.incrementQuantity(barcode);
+                        } else {
+                          scannedItemsModel.addScannedItem(barcode);
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.grey[300],
+                      onPrimary: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: Text('Scan Barcode'),
+                  ),
+                ),
+                SizedBox(width: 20), // Add spacing between buttons
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return const ManualBarcodeEntryDialog();
+                        },
+                      );
+
+                      Navigator.pushNamed(context, '/list');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.grey[300],
+                      onPrimary: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: Text('Enter Barcode Manually'),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 300), // Add spacing below the buttons
+            Align(
+              alignment: Alignment.bottomRight,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await PdfGenerator.createPDF(scannedItems, barcodeToInfoMap,
+                      scannedItemsModel, GlobalData.phoneNumber);
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentPage(
+                        scannedItems: scannedItems,
+                        barcodeToInfoMap: barcodeToInfoMap,
+                        scannedItemsModel: scannedItemsModel,
+                        phoneNumber: GlobalData.phoneNumber,
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.grey[300],
+                  onPrimary: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(color: Colors.grey[300]!),
+                  ),
+                ),
+                child: Text('Done Shopping'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

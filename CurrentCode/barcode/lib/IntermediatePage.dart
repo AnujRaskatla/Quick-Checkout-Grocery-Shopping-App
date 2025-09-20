@@ -172,8 +172,7 @@ class _IntermediatePageState extends State<IntermediatePage> {
                   'Skip',
                   style: TextStyle(
                     fontSize: 18,
-                    color: Colors.black,
-                    decoration: TextDecoration.underline,
+                    color: Colors.grey[300],
                   ),
                 ),
               ),

@@ -40,9 +40,9 @@ class WelcomePage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Text(
-              'What would you like to do?',
+              'Let\'s Add Products to your Cart!',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
@@ -62,24 +62,27 @@ class WelcomePage extends StatelessWidget {
               child: Text('Scan Barcode', style: TextStyle(fontSize: 18)),
             ),
             SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(
-                context,
-                '/list',
-                arguments: {'phoneNumber': phoneNumber},
-              ),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(color: Colors.grey[300]!),
+            // Add a SizedBox to push the "Skip" text to the bottom right corner
+            SizedBox(height: 200),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/list',
+                    arguments: {'phoneNumber': phoneNumber},
+                  );
+                },
+                child: Text(
+                  'Skip',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey[300], // You can customize the color
+                  ),
                 ),
-                elevation: 5,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                primary: Colors.grey[300],
               ),
-              child: Text('View List', style: TextStyle(fontSize: 18)),
             ),
-            SizedBox(height: 10),
           ],
         ),
       ),

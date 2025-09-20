@@ -1,6 +1,6 @@
 // cartnumber/CartNumberPage.dart
 
-// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, file_names, library_private_types_in_public_api
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, file_names, library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -28,7 +28,7 @@ class _CartNumberPageState extends State<CartNumberPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cart Number'),
+        title: Text('Scan Cart Number'),
       ),
       body: Column(
         children: <Widget>[
@@ -43,8 +43,11 @@ class _CartNumberPageState extends State<CartNumberPage> {
             flex: 1,
             child: Center(
               child: Text(
-                'Cart Number: $cartNumberz', // Display the scanned cart number.
-                style: TextStyle(fontSize: 18),
+                'Received Cart Number: $cartNumberz', // Display the scanned cart number.
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -64,7 +67,22 @@ class _CartNumberPageState extends State<CartNumberPage> {
                       ),
                     );
                   },
-                  child: Text('Enter Cart Number'),
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          20), // Adjust the border radius as needed
+                      side:
+                          BorderSide(color: Colors.grey[300]!), // Border color
+                    ),
+                    elevation: 5, // Elevation (shadow)
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 15), // Padding
+                    primary: Colors.grey[300], // Button background color
+                  ),
+                  child: Text(
+                    'Proceed',
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
               ],
             ),

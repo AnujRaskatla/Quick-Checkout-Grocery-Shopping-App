@@ -285,13 +285,21 @@ class _ResultPageState extends State<ResultPage> {
 
   @override
   Widget build(BuildContext context) {
+    String differenceText = '';
+    if (totalWeight != null && weightValue != null) {
+      final difference = (totalWeight! - weightValue!).abs();
+      if (difference > 1) {
+        differenceText =
+            'Difference in weights: ${difference.toStringAsFixed(1)}g';
+      }
+    }
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Scanned Number: ${widget.scannedValue}',
+              'Cart Number: ${widget.scannedValue}',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 40),
@@ -329,6 +337,16 @@ class _ResultPageState extends State<ResultPage> {
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: resultColor,
+              ),
+            ),
+            // Difference in Weights Section
+            if (differenceText.isNotEmpty) SizedBox(height: 20),
+            Text(
+              differenceText,
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.bold,
+                color: resultColor, // You can adjust the color as needed
               ),
             ),
           ],

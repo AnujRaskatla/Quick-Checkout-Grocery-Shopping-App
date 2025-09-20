@@ -1,6 +1,6 @@
 {
-    "name": "barcode",
-    "short_name": "barcode",
+    "name": "weigh",
+    "short_name": "weigh",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

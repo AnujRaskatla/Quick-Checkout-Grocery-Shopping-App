@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:csv/csv.dart'; // for CSV parsing
+import 'package:csv/csv.dart';
 import 'package:http/http.dart' as http;
 import 'package:excel/excel.dart';
 import 'dart:io';
@@ -26,6 +26,7 @@ class ViewListPageState extends State<ViewListPage>
   Map<String, List<String>> barcodeToInfoMap = {};
   String csvData = '';
   double receivedWeight = 0.0; // Added received weight
+  double fetchedWeight = 0.0;
 
   @override
   void initState() {
@@ -165,6 +166,48 @@ class ViewListPageState extends State<ViewListPage>
     }
   }
 
+  Future<void> fetchAndCompareWeight(
+      ScannedItemsModel scannedItemsModel) async {
+    final weightResponse = await http.get(
+        Uri.parse('http://192.168.50.35/getWeight')); // Replace with your URL
+
+    if (weightResponse.statusCode == 200) {
+      double fetchedWeight = double.tryParse(weightResponse.body) ?? 0.0;
+
+      // Compare fetchedWeight with totalWeight
+      double totalWeight = 0.0;
+      for (String scannedItem in scannedItemsModel.scannedItems) {
+        List<String> info =
+            barcodeToInfoMap[scannedItem] ?? ['N/A', '0.0', '0.0'];
+        double weight = double.tryParse(info[2]) ?? 0.0;
+        int quantity = scannedItemsModel.getQuantity(scannedItem);
+        totalWeight += weight * quantity;
+      }
+
+      setState(() {
+        this.fetchedWeight = fetchedWeight;
+      });
+
+      if (fetchedWeight == totalWeight) {
+        // Weight matches
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fetched weight matches total weight.')),
+        );
+      } else {
+        // Weight does not match
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Fetched weight does not match total weight.')),
+        );
+      }
+    } else {
+      // Error fetching weight data
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to fetch weight data.')),
+      );
+    }
+  }
+
   @override
   bool get wantKeepAlive => true;
 
@@ -228,34 +271,39 @@ class ViewListPageState extends State<ViewListPage>
             alignment: Alignment.bottomRight,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: () async {
-                  await createXLSXFile(scannedItems, barcodeToInfoMap);
-                  await PdfGenerator.createPDF(
-                      scannedItems, barcodeToInfoMap, scannedItemsModel);
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => fetchAndCompareWeight(scannedItemsModel),
+                    child: const Text('Fetch Weight'),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Fetched Weight: $fetchedWeight',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await createXLSXFile(scannedItems, barcodeToInfoMap);
+                      await PdfGenerator.createPDF(
+                          scannedItems, barcodeToInfoMap, scannedItemsModel);
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ReceivedWeightPage(
-                        totalWeight: totalWeight,
-                        scannedItemsModel: scannedItemsModel,
-                      ),
-                    ),
-                  );
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaymentPage(
-                        scannedItems: scannedItems,
-                        barcodeToInfoMap: barcodeToInfoMap,
-                        scannedItemsModel: scannedItemsModel,
-                      ),
-                    ),
-                  );
-                },
-                child: const Text('Done Shopping'),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PaymentPage(
+                            scannedItems: scannedItems,
+                            barcodeToInfoMap: barcodeToInfoMap,
+                            scannedItemsModel: scannedItemsModel,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('Done Shopping'),
+                  ),
+                ],
               ),
             ),
           ),

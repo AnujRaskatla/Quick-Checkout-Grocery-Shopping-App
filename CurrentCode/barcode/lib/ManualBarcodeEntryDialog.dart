@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// for CSV parsing
 import 'ScannedItemsModel.dart';
 
 class ManualBarcodeEntryDialog extends StatefulWidget {

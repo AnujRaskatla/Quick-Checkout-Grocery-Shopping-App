@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:provider/provider.dart';
-// for CSV parsing
 import 'ScannedItemsModel.dart';
 import 'ManualBarcodeEntryDialog.dart';
 

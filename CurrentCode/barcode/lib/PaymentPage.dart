@@ -74,6 +74,11 @@ class PaymentPage extends StatelessWidget {
                   File xlsxFile =
                       File('${Directory.systemTemp.path}/scanned_items.xlsx');
                   await uploadXLSXToFirebase(xlsxFile);
+                  await PdfGenerator.createPDF(
+                      scannedItems, barcodeToInfoMap, scannedItemsModel);
+                  File pdfFile =
+                      File('${Directory.systemTemp.path}/scanned_items.pdf');
+                  await uploadPDFToFirebase(pdfFile);
                   // Implement GPay payment logic here
                 },
                 child: const Row(
@@ -100,6 +105,11 @@ class PaymentPage extends StatelessWidget {
                   File xlsxFile =
                       File('${Directory.systemTemp.path}/scanned_items.xlsx');
                   await uploadXLSXToFirebase(xlsxFile);
+                  await PdfGenerator.createPDF(
+                      scannedItems, barcodeToInfoMap, scannedItemsModel);
+                  File pdfFile =
+                      File('${Directory.systemTemp.path}/scanned_items.pdf');
+                  await uploadPDFToFirebase(pdfFile);
                   // Implement PhonePe payment logic here
                 },
                 child: const Row(

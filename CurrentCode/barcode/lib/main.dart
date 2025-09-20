@@ -521,7 +521,7 @@ class ReceivedWeightPageState extends State<ReceivedWeightPage> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
-          'Make Payment:',
+          'Weight Check:',
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -554,7 +554,10 @@ class ReceivedWeightPageState extends State<ReceivedWeightPage> {
             const Spacer(),
             ElevatedButton(
               onPressed: () {
-                // Navigate to payment screen or perform payment logic here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PaymentPage()),
+                ); // Navigate to payment screen or perform payment logic here
                 // Navigator.pushNamed(context, '/payment');
               },
               style: ElevatedButton.styleFrom(
@@ -574,6 +577,102 @@ class ReceivedWeightPageState extends State<ReceivedWeightPage> {
               ),
             ),
             const SizedBox(height: 40), // Add space after the button
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PaymentPage extends StatelessWidget {
+  const PaymentPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text(
+          'Select Payment Method',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment:
+              CrossAxisAlignment.stretch, // Align buttons to full width
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange, // Change the button color
+                  padding: const EdgeInsets.all(16.0),
+                ),
+                onPressed: () {
+                  // Implement GPay payment logic here
+                },
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.payment), // Add an icon
+                    SizedBox(width: 8.0), // Add spacing
+                    Text(
+                      'UPI',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green, // Change the button color
+                  padding: const EdgeInsets.all(16.0),
+                ),
+                onPressed: () {
+                  // Implement PhonePe payment logic here
+                },
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.payment), // Add an icon
+                    SizedBox(width: 8.0), // Add spacing
+                    Text(
+                      'Debit Card',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Change the button color
+                  padding: const EdgeInsets.all(16.0),
+                ),
+                onPressed: () {
+                  // Implement Paytm payment logic here
+                },
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.payment), // Add an icon
+                    SizedBox(width: 8.0), // Add spacing
+                    Text(
+                      'Net Banking',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

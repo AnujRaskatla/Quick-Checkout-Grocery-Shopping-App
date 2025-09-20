@@ -183,6 +183,14 @@ class ViewListPageState extends State<ViewListPage>
             },
             icon: const Icon(Icons.remove),
           ),
+          IconButton(
+            onPressed: () {
+              setState(() {
+                scannedItemsModel.scannedItems.removeAt(index);
+              });
+            },
+            icon: const Icon(Icons.delete),
+          ),
         ],
       )),
       DataCell(Text((index + 1).toString())),

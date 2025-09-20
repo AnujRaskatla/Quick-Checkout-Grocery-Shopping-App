@@ -76,6 +76,8 @@ class PDFGenerator {
 
       await uploadTask.whenComplete(() {
         print('Invoice PDF uploaded to Firebase Storage: $fileName');
+        file.deleteSync();
+        print('Invoice PDF deleted from local storage: $fileName');
       });
     } catch (e) {
       print('Failed to upload Invoice PDF to Firebase Storage: $e');

@@ -1,9 +1,12 @@
+// ignore_for_file: avoid_print, prefer_const_constructors, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, file_names, library_private_types_in_public_api, prefer_const_literals_to_create_immutables
+
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'DisplayDataPage.dart';
 import 'IntermediatePage.dart';
 import 'GlobalData.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'RefundPage.dart';
 
 class PaymentPage extends StatefulWidget {
   final List<Map<String, dynamic>> dataList;
@@ -35,13 +38,13 @@ class _PaymentPageState extends State<PaymentPage> {
     double currentPrice = GlobalData.totalPriceInPaise;
 
     SharedPreferences.getInstance().then((prefs) {
-      double storedInitialPrice = prefs.getDouble('initialPrice') ?? 0;
-      if (storedInitialPrice != 0) {
-        initialPrice = storedInitialPrice;
-      } else {
-        initialPrice = currentPrice;
-        prefs.setDouble('initialPrice', initialPrice);
-      }
+      //   double storedInitialPrice = prefs.getDouble('initialPrice') ?? 0;
+      //  if (storedInitialPrice != 0) {
+      //    initialPrice = storedInitialPrice;
+      //  } else {
+      //    initialPrice = currentPrice;
+      //    prefs.setDouble('initialPrice', initialPrice);
+      //  }
       print('Current Price (bd): $currentPrice');
       print('Initial Price (bd): $initialPrice');
       print('Meter (bd): ${GlobalData.meter}');
@@ -69,6 +72,15 @@ class _PaymentPageState extends State<PaymentPage> {
           initiateRazorpayPayment(context);
         } else {
           print('Refund will be Processed in payment page');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RefundPage(
+                dataList: widget.dataList,
+                dataStore: widget.dataStore,
+              ), // Replace with your RefundPage widget
+            ),
+          );
         }
       }
     });
@@ -130,43 +142,56 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          'Go Back',
-          style: TextStyle(
-            color: Colors.black,
-          ),
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32.0),
-              child: Column(
+      body: ListView(
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
                 children: [
-                  Icon(
-                    Icons.payment,
-                    size: 64.0,
-                    color: Colors.indigo[900],
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
-                  SizedBox(height: 16.0),
-                  Text(
-                    'Redirecting to Payment Gateway...',
+                  const Text(
+                    'Go Back',
                     style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.indigo[900],
+                      fontSize: 16,
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.60,
+            child: Image.asset('assets/pg.jpg'),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(0.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Redirecting to Payment Gateway...',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

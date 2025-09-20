@@ -54,7 +54,7 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                   Text(
                     'Go back to Cart Scan',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -65,7 +65,7 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
           Image.asset('assets/bs.jpg'),
 
           Padding(
-            padding: const EdgeInsets.all(50.0),
+            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -77,7 +77,7 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Colors.black87,
                       ),
                     ),
                     Container(
@@ -85,7 +85,7 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                       padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.indigo[900], // Customize the bubble color
+                        color: Colors.blue[900], // Customize the bubble color
                       ),
                       child: Text(
                         '${GlobalData.cartNumber}',
@@ -102,11 +102,11 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                 Text(
                   'Scan a Barcode of a Product to add to Shopping list',
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 16,
                     color: Colors.black87,
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: () async {
                     String barcode = await FlutterBarcodeScanner.scanBarcode(
@@ -163,7 +163,7 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                     ),
                     elevation: 5,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    primary: Colors.orange[900],
+                    primary: Colors.blue[800],
                   ),
                   child: Text(
                     'Scan Barcode',
@@ -191,7 +191,7 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                     ),
                     elevation: 5,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    primary: Colors.orange[900],
+                    primary: Colors.blue[800],
                   ),
                   child: Text('Enter Barcode No.',
                       style: TextStyle(

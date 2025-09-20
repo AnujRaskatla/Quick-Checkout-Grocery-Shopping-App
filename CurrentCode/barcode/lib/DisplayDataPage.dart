@@ -145,8 +145,8 @@ class _DisplayPageState extends State<DisplayPage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(
                       30.0), // Rounded corners for buttons
-                  border: Border.all(color: Colors.red),
-                  color: Colors.orange[900], // Border
+                  // border: Border.all(color: Colors.red),
+                  color: Colors.blue[800], // Border
                 ),
                 child: Text(
                   'Yes',
@@ -167,8 +167,8 @@ class _DisplayPageState extends State<DisplayPage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(
                       30.0), // Rounded corners for buttons
-                  border: Border.all(color: Colors.red),
-                  color: Colors.orange[900], // Border
+                  // border: Border.all(color: Colors.red),
+                  color: Colors.blue[800], // Border
                 ),
                 child: Text(
                   'No',
@@ -221,7 +221,7 @@ class _DisplayPageState extends State<DisplayPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         elevation: 4,
-        backgroundColor: Colors.blue[900], // Change the background color
+        backgroundColor: Colors.blue[800], // Change the background color
         title: Text(
           'Shopping List:',
           style: GoogleFonts.roboto(
@@ -256,7 +256,7 @@ class _DisplayPageState extends State<DisplayPage> {
                 width: 50, // Adjust the width of the circular button
                 height: 50, // Adjust the height of the circular button
                 decoration: BoxDecoration(
-                  color: Colors.blue[900], // Change the color as needed
+                  color: Colors.blue[800], // Change the color as needed
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -279,7 +279,7 @@ class _DisplayPageState extends State<DisplayPage> {
                 width: 50, // Adjust the width of the circular button
                 height: 50, // Adjust the height of the circular button
                 decoration: BoxDecoration(
-                  color: Colors.blue[900], // Change the color as needed
+                  color: Colors.blue[800], // Change the color as needed
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -335,7 +335,7 @@ class _DisplayPageState extends State<DisplayPage> {
                 width: 50, // Adjust the width of the circular button
                 height: 50, // Adjust the height of the circular button
                 decoration: BoxDecoration(
-                  color: Colors.blue[900], // Change the color as needed
+                  color: Colors.blue[800], // Change the color as needed
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -442,7 +442,7 @@ class _DisplayPageState extends State<DisplayPage> {
                       width: 50, // Adjust the width of the circular button
                       height: 50, // Adjust the height of the circular button
                       decoration: BoxDecoration(
-                        color: Colors.blue[900], // Change the color as needed
+                        color: Colors.blue[800], // Change the color as needed
                         shape: BoxShape.circle,
                       ),
                       child: Center(

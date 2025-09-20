@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'thank_you_page.dart';
 import 'GlobalData.dart';
 import 'DisplayDataPage.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class IntermediatePage extends StatefulWidget {
   final DataStore dataStore;
@@ -46,7 +47,8 @@ class _IntermediatePageState extends State<IntermediatePage> {
         } else if (status == "Weights Not Matched") {
           // If status is "Weights not Matched," set the statusMessage accordingly
           setState(() {
-            statusMessage = 'Please Check your Products';
+            statusMessage =
+                'Remove the cart from counter and Please Check your Products';
           });
         }
       } else {
@@ -68,9 +70,9 @@ class _IntermediatePageState extends State<IntermediatePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(0.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          //  mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             SizedBox(
@@ -78,63 +80,67 @@ class _IntermediatePageState extends State<IntermediatePage> {
                   0.60, // Adjust the height as needed
               child: Image.asset('assets/ct.jpg'),
             ),
-            Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Go to Exit Counter and place your cart',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                // SizedBox(height: 100),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Text(
-                    statusMessage,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20), // Add spacing between the text and button
-                if (status == "Weights Not Matched")
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => DisplayPage(
-                              dataList: widget.dataList,
-                              dataStore: widget.dataStore),
+            if (status != "Weights Matched" && status != "Weights Not Matched")
+              Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        'Go to Exit Counter and place your cart',
+                        style: GoogleFonts.roboto(
+                          textStyle: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(color: Colors.grey[300]!),
                       ),
-                      elevation: 5,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                      primary: Colors.grey[300],
+                    ],
+                  ),
+                ],
+              ),
+            SizedBox(height: 30),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+              child: Text(
+                statusMessage,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+            SizedBox(height: 20), // Add spacing between the text and button
+            if (status == "Weights Not Matched")
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => DisplayPage(
+                          dataList: widget.dataList,
+                          dataStore: widget.dataStore),
                     ),
-                    child: Text(
-                      'Go to Scanned Products',
-                      style: TextStyle(fontSize: 18),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: CircleBorder(),
+                  primary: Colors.red[600], // Change the color as needed
+                ),
+                child: SizedBox(
+                  width: 60, // Adjust the width of the circular button
+                  height: 60, // Adjust the height of the circular button
+                  child: Center(
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                      size: 30,
                     ),
                   ),
-              ],
-            ),
-            Spacer(),
+                ),
+              ),
+
             Align(
               alignment: Alignment.bottomRight,
               child: TextButton(

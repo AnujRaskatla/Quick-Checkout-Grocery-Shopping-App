@@ -1,52 +1,82 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, avoid_print, prefer_const_literals_to_create_immutables, prefer_const_constructors
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, prefer_const_declarations, avoid_print, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http; // Import the HTTP package
+import 'package:firebase_database/firebase_database.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 import 'GlobalData.dart';
+import 'dart:convert';
 
 class ThankYouPage extends StatelessWidget {
   ThankYouPage();
 
-  Future<void> copyPDFLinkToClipboard(String fileName) async {
+  Future<void> sendPDFLinkByEmail(String fileName) async {
     final storage = FirebaseStorage.instance;
+    final pdfRef = storage.ref().child('invoices/$fileName');
+    final pdfUrl = await pdfRef.getDownloadURL();
 
-    try {
-      final pdfRef = storage.ref().child('invoices/$fileName');
-      final pdfUrl = await pdfRef.getDownloadURL();
+    // Compose the email message with the PDF link
+    String message = 'Here is the PDF file for payment: $pdfUrl';
 
-      String message = 'Here is the PDF file for payment: $pdfUrl';
+    // Use the MailerSend API to send the email
+    final apiURL = 'https://api.mailersend.com/v1/email';
 
-      final ClipboardData data = ClipboardData(text: message);
-      await Clipboard.setData(data);
+    final apiKey =
+        'mlsn.d6b91eee9c469639b659a1f42aa60559dbce8f45c8025f1420a0eed40d0d90c5'; // Replace with your MailerSend API key
+    final fromEmail = 'pawanpk0987@gmail.com';
+    final toEmail = '${GlobalData.userEmail}';
+    print('User: ${GlobalData.userEmail}');
 
-      print('PDF link copied to clipboard.');
+    final emailData = {
+      "from": {"email": fromEmail},
+      "to": [
+        {"email": toEmail}
+      ],
+      "subject": "Your subject",
+      "text": message,
+      "html": "<p>Your HTML content</p>",
+    };
 
-      // Make an HTTP request to your server to send the email
-      final response = await http.post(
-        Uri.parse(
-            'http://65214e89474d2f4d4b49.appwrite.global/'), // Replace with your server's endpoint
-        body: {
-          'to': GlobalData.userEmail,
-          'subject': 'Your Shopping Bill PDF Link',
-          'html':
-              'Here is the link to the PDF with your shopping bill: <a href="$pdfUrl">Download PDF</a>',
-        },
-      );
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $apiKey",
+    };
 
-      if (response.statusCode == 200) {
-        print('Email sent successfully.');
-      } else {
-        print('Failed to send email. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error retrieving PDF download URL or sending email: $e');
+    final response = await http.post(
+      Uri.parse(apiURL),
+      headers: headers,
+      body: json.encode(emailData),
+    );
+
+    if (response.statusCode == 200) {
+      print('Email sent successfully');
+    } else {
+      print('Failed to send email: ${response.statusCode}');
+      print(response.body);
+    }
+
+    // Check if the URL can be launched
+    if (await canLaunch(pdfUrl)) {
+      // Launch the URL in the default browser
+      await launch(pdfUrl);
+    } else {
+      print('Could not launch $pdfUrl');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Delete $cartNumber and totalweight fields from Firebase Realtime Database
+    final DatabaseReference databaseReference =
+        FirebaseDatabase.instance.reference();
+    databaseReference.child("cartNumbers/").update({
+      "${GlobalData.cartNumber}": null,
+      "totalWeight": null,
+    });
+    databaseReference.child("Status/").update({
+      "${GlobalData.cartNumber}": null,
+    });
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -55,18 +85,16 @@ class ThankYouPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-              height: MediaQuery.of(context).size.height *
-                  0.60, // Adjust the height as needed
+              height: MediaQuery.of(context).size.height * 0.60,
               child: Image.asset('assets/tq.jpg'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             InkWell(
               onTap: () async {
-                await copyPDFLinkToClipboard(
-                    '${GlobalData.userEmail}-invoice.pdf');
+                await sendPDFLinkByEmail('${GlobalData.userEmail}-invoice.pdf');
               },
               child: RichText(
-                text: TextSpan(
+                text: const TextSpan(
                   text: 'Here is the link to the PDF with your shopping bill: ',
                   style: TextStyle(
                     fontSize: 16,
@@ -74,7 +102,7 @@ class ThankYouPage extends StatelessWidget {
                   ),
                   children: <TextSpan>[
                     TextSpan(
-                      text: 'Copy Link',
+                      text: 'Send Email',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
                         fontWeight: FontWeight.bold,
@@ -85,7 +113,7 @@ class ThankYouPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
           ],
         ),
       ),

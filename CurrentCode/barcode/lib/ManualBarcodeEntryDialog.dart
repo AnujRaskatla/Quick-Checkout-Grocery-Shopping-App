@@ -90,7 +90,7 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                       if (existingIndex != -1) {
                         // Data is already present, increment quantity
                         widget.dataStore.updateQuantity(existingIndex, 1);
-                        //_showDataPage(widget.dataStore.dataList);
+                        _showDataPage(widget.dataStore.dataList);
                         //Navigator.push(
                         //  context,
                         //  MaterialPageRoute(
@@ -129,19 +129,19 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                         });
                       }
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DisplayPage(
-                            dataList: widget.dataStore.dataList,
-                            dataStore: widget.dataStore,
-                          ),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //    builder: (context) => DisplayPage(
+                      //     dataList: widget.dataStore.dataList,
+                      //      dataStore: widget.dataStore,
+                      //    ),
+                      //  ),
+                      //  );
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.orange[900],
+                    primary: Colors.blue[800],
                     onPrimary: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
@@ -155,7 +155,7 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.orange[900],
+                    primary: Colors.blue[800],
                     onPrimary: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),

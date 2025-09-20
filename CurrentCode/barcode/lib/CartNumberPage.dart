@@ -2,9 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:weigh/PhoneEntryPage.dart';
 import 'package:weigh/ScanBarcodePage.dart';
-
-import 'PhoneEntryPage.dart';
 import 'GlobalData.dart';
 import 'DisplayDataPage.dart';
 
@@ -33,7 +32,7 @@ class _CartNumberPageState extends State<CartNumberPage> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                ThirdPage(), // Replace with your ThirdPage widget
+                ThirdPage(), // Replace with your Scancart widget
           ),
         );
         return false; // Prevent the default back button behavior
@@ -45,7 +44,7 @@ class _CartNumberPageState extends State<CartNumberPage> {
           title: Text(
             'Scan QR',
             style: TextStyle(
-              color: Colors.indigo[900],
+              color: Colors.black,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -70,7 +69,7 @@ class _CartNumberPageState extends State<CartNumberPage> {
                     style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.indigo[900]),
+                        color: Colors.black87),
                   ),
                   SizedBox(height: 30),
                   ElevatedButton(
@@ -88,7 +87,7 @@ class _CartNumberPageState extends State<CartNumberPage> {
                     },
                     style: ElevatedButton.styleFrom(
                       shape: CircleBorder(),
-                      primary: Colors.orange[900], // Change the color as needed
+                      primary: Colors.blue[800], // Change the color as needed
                     ),
                     child: SizedBox(
                       width: 60, // Adjust the width of the circular button

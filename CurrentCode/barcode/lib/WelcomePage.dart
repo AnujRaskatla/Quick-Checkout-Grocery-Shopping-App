@@ -10,6 +10,7 @@ class WelcomePage extends StatelessWidget {
     Key? key,
     required this.userName,
     required this.phoneNumber,
+    String? cartNumber,
   }) : super(key: key);
 
   @override

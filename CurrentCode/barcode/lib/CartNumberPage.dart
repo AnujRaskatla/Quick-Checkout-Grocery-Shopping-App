@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'LoginPage.dart'; // Import the QR code scanner package.
+
 import 'GlobalData.dart';
+import 'WelcomePage.dart';
 
 class CartNumberPage extends StatefulWidget {
   @override
@@ -49,12 +50,15 @@ class _CartNumberPageState extends State<CartNumberPage> {
                 SizedBox(height: 30),
                 ElevatedButton.icon(
                   onPressed: () {
-                    // Navigate to the login page with the cart number.
+                    // Navigate to the WelcomePage directly with the cart number, name, and phone number.
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            LoginPage(cartNumber: GlobalData.cartNumber),
+                        builder: (context) => WelcomePage(
+                          cartNumber: GlobalData.cartNumber,
+                          userName: GlobalData.userName,
+                          phoneNumber: GlobalData.phoneNumber,
+                        ),
                       ),
                     );
                   },

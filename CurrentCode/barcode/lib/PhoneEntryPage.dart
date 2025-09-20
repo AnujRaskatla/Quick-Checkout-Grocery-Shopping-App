@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'CartNumberPage.dart';
+import 'GlobalData.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -314,6 +315,9 @@ class _SecondPageState extends State<SecondPage> {
                                 'name': name,
                                 'phone_number': phoneNumber,
                               });
+                              // Update GlobalData
+                              GlobalData.userName = name;
+                              GlobalData.phoneNumber = phoneNumber;
 
                               // Navigate to CartNumberPage after saving
                               Navigator.push(

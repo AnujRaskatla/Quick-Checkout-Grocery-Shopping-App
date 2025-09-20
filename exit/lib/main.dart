@@ -46,9 +46,6 @@ class FirstPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('QR Code Scanner'),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -71,7 +68,22 @@ class FirstPage extends StatelessWidget {
                   );
                 }
               },
-              child: Text('Scan QR'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                primary: Colors.grey[300],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
+              ),
+              child: Text(
+                'Scan QR',
+                style: TextStyle(
+                  fontSize: 18, // Adjust the font size as needed
+                  fontWeight: FontWeight.bold, // Make the font bold
+                  color: Colors.black, // Change the text color to black
+                ),
+              ),
             ),
           ],
         ),
@@ -94,7 +106,17 @@ class _QRScannerPageState extends State<QRScannerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('QR Code Scanner'),
+        title: Text(
+          'Scan QR',
+          style: TextStyle(
+            color: Colors.black, // Text color
+            fontSize: 24, // Text size
+            // Text weight
+          ),
+        ),
+        backgroundColor: Colors.grey[300],
+        elevation: 4, // Elevation for a shadow effect
+        centerTitle: true, // Center the title text
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -262,30 +284,60 @@ class _ResultPageState extends State<ResultPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Result Page'),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Scanned Number: ${widget.scannedValue}',
-                style: TextStyle(fontSize: 18)),
+            Text(
+              'Scanned Number: ${widget.scannedValue}',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            // Total Weight Section
             if (totalWeight != null)
-              Text('Total Weight: $totalWeight',
-                  style: TextStyle(fontSize: 18)),
+              Column(
+                children: [
+                  Text(
+                    'Total Weight:',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    '$totalWeight',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
             if (totalWeight == null)
-              Text('Total Weight not found',
-                  style: TextStyle(fontSize: 18, color: Colors.red)),
-
-            // Display "Weight" if available
+              Text(
+                'Total Weight not found',
+                style: TextStyle(fontSize: 18, color: Colors.red),
+              ),
+            SizedBox(height: 20),
+            // Weight Section
             if (weightValue != null)
-              Text('Weight: $weightValue', style: TextStyle(fontSize: 18)),
-
-            // Display the comparison result with the specified text color
+              Column(
+                children: [
+                  Text(
+                    'Weight:',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    '$weightValue',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            SizedBox(height: 20),
+            // Comparison Result Section
             Text(
               comparisonResult,
-              style: TextStyle(fontSize: 18, color: resultColor),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: resultColor,
+              ),
             ),
           ],
         ),

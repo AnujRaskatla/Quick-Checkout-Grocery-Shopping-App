@@ -15,10 +15,28 @@ void main() {
 
 class ScannedItemsModel extends ChangeNotifier {
   List<String> scannedItems = [];
+  Map<String, int> itemQuantities = {}; // Map to store quantities
 
   void addScannedItem(String barcode) {
     scannedItems.add(barcode);
+    itemQuantities[barcode] = 1; // Set initial quantity to 1
     notifyListeners();
+  }
+
+  int getQuantity(String barcode) {
+    return itemQuantities[barcode] ?? 0;
+  }
+
+  void incrementQuantity(String barcode) {
+    itemQuantities[barcode] = (itemQuantities[barcode] ?? 0) + 1;
+    notifyListeners();
+  }
+
+  void decrementQuantity(String barcode) {
+    if (itemQuantities[barcode] != null && itemQuantities[barcode]! > 0) {
+      itemQuantities[barcode] = itemQuantities[barcode]! - 1;
+      notifyListeners();
+    }
   }
 }
 
@@ -106,7 +124,7 @@ class ScanBarcodePage extends StatelessWidget {
 }
 
 class ViewListPage extends StatefulWidget {
-  const ViewListPage({super.key});
+  const ViewListPage({Key? key}) : super(key: key);
 
   @override
   ViewListPageState createState() => ViewListPageState();
@@ -114,8 +132,7 @@ class ViewListPage extends StatefulWidget {
 
 class ViewListPageState extends State<ViewListPage>
     with AutomaticKeepAliveClientMixin {
-  List<String> scannedItems = [];
-  late Map<String, List<String>> barcodeToInfoMap;
+  Map<String, List<String>> barcodeToInfoMap = {};
 
   @override
   void initState() {
@@ -166,14 +183,15 @@ class ViewListPageState extends State<ViewListPage>
     }
 
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: const Text(
-            'Scanned Products',
-            style: TextStyle(color: Colors.black),
-          ),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Scanned Products',
+          style: TextStyle(color: Colors.black),
         ),
-        body: Column(children: [
+      ),
+      body: Column(
+        children: [
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SingleChildScrollView(
@@ -188,11 +206,12 @@ class ViewListPageState extends State<ViewListPage>
                 horizontalMargin: 20, // Add margin to the horizontal sides
                 columnSpacing: 20.0,
                 columns: const <DataColumn>[
+                  DataColumn(label: Text('Qty.')), // Qty. column
                   DataColumn(label: Text('S.no')),
                   DataColumn(label: Text('Name')),
                   DataColumn(label: Text('Barcode Number')),
-                  DataColumn(label: Text('Price')),
-                  DataColumn(label: Text('Weight')),
+                  DataColumn(label: Text('Price(₹)')),
+                  DataColumn(label: Text('Weight(g)')),
                 ],
                 rows: List<DataRow>.generate(
                   scannedItems.length,
@@ -200,8 +219,26 @@ class ViewListPageState extends State<ViewListPage>
                     String scannedItem = scannedItems[index];
                     List<String> info =
                         barcodeToInfoMap[scannedItem] ?? ['N/A', 'N/A', 'N/A'];
+                    int quantity = scannedItemsModel.getQuantity(scannedItem);
 
                     return DataRow(cells: <DataCell>[
+                      DataCell(Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              scannedItemsModel.incrementQuantity(scannedItem);
+                            },
+                            icon: const Icon(Icons.add),
+                          ),
+                          Text(quantity.toString()),
+                          IconButton(
+                            onPressed: () {
+                              scannedItemsModel.decrementQuantity(scannedItem);
+                            },
+                            icon: const Icon(Icons.remove),
+                          ),
+                        ],
+                      )),
                       DataCell(Text((index + 1).toString())),
                       DataCell(Text(info.length > 0 ? info[0] : 'N/A')),
                       DataCell(Text(scannedItem)),
@@ -212,6 +249,7 @@ class ViewListPageState extends State<ViewListPage>
                 )..add(
                     DataRow(cells: <DataCell>[
                       const DataCell(Text('Total')),
+                      const DataCell(Text('')),
                       const DataCell(Text('')),
                       const DataCell(Text('')),
                       DataCell(Text(totalPrice.toStringAsFixed(2))),
@@ -236,6 +274,8 @@ class ViewListPageState extends State<ViewListPage>
               ),
             ),
           )
-        ]));
+        ],
+      ),
+    );
   }
 }

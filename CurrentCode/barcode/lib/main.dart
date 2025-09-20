@@ -1,181 +1,24 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter/services.dart'; // for rootBundle
-import 'package:csv/csv.dart'; // for CSV parsing
+import 'package:firebase_core/firebase_core.dart';
+import 'CartNumberPage.dart';
+import 'PhoneEntryPage.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ScannedItemsModel(),
-      child: const MyApp(),
-    ),
-  );
-}
-
-class ScannedItemsModel extends ChangeNotifier {
-  List<String> scannedItems = [];
-
-  void addScannedItem(String barcode) {
-    scannedItems.add(barcode);
-    notifyListeners();
-  }
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+    MaterialApp(
       title: 'Barcode App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.grey,
       ),
-      initialRoute: '/',
+      initialRoute: '/signup', // Start with the SignupPage.
       routes: {
-        '/': (context) => const WelcomePage(),
-        '/scan': (context) => const ScanBarcodePage(),
-        '/list': (context) => const ViewListPage(),
+        '/signup': (context) => PhoneEntryPage(), // SignupPage route.
+        '/cartnumber': (context) => CartNumberPage(),
       },
-    );
-  }
-}
-
-class WelcomePage extends StatelessWidget {
-  const WelcomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Welcome Anuj',
-              style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/scan'),
-              child: const Text('Scan Barcode'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/list'),
-              child: const Text('View List'),
-            ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ScanBarcodePage extends StatelessWidget {
-  const ScanBarcodePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            String barcode = await FlutterBarcodeScanner.scanBarcode(
-              '#FF0000',
-              'Cancel',
-              true,
-              ScanMode.BARCODE,
-            );
-
-            if (barcode.isNotEmpty) {
-              Provider.of<ScannedItemsModel>(context, listen: false)
-                  .addScannedItem(barcode);
-            }
-          },
-          child: const Text('Start Barcode Scan'),
-        ),
-      ),
-    );
-  }
-}
-
-class ViewListPage extends StatefulWidget {
-  const ViewListPage({super.key});
-
-  @override
-  ViewListPageState createState() => ViewListPageState();
-}
-
-class ViewListPageState extends State<ViewListPage>
-    with AutomaticKeepAliveClientMixin {
-  List<String> scannedItems = [];
-  late Map<String, String> barcodeToWeightMap;
-
-  @override
-  void initState() {
-    super.initState();
-    loadCsvData();
-  }
-
-  Future<void> loadCsvData() async {
-    String csvData = await rootBundle
-        .loadString('assets/data.csv'); // Replace with your CSV file path
-    List<List<dynamic>> csvTable = const CsvToListConverter().convert(csvData);
-
-    barcodeToWeightMap = {};
-    for (var row in csvTable) {
-      String barcode = row[0].toString();
-      String weight = row[1].toString();
-      barcodeToWeightMap[barcode] = weight;
-    }
-
-    setState(() {});
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    final scannedItemsModel = Provider.of<ScannedItemsModel>(context);
-    final List<String> scannedItems = scannedItemsModel.scannedItems;
-    final String? barcode =
-        ModalRoute.of(context)!.settings.arguments as String?;
-
-    if (barcode != null) {
-      scannedItems.add(barcode);
-    }
-
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: DataTable(
-          columns: const <DataColumn>[
-            DataColumn(label: Text('S.no')),
-            DataColumn(label: Text('Barcode Number')),
-            DataColumn(label: Text('Weight')),
-          ],
-          rows: List<DataRow>.generate(
-            scannedItems.length,
-            (index) {
-              String scannedItem = scannedItems[index];
-              String weight = barcodeToWeightMap[scannedItem] ?? 'N/A';
-
-              return DataRow(cells: <DataCell>[
-                DataCell(Text((index + 1).toString())),
-                DataCell(Text(scannedItem)),
-                DataCell(Text(weight)),
-              ]);
-            },
-          ),
-        ),
-      ),
-    );
-  }
+    ),
+  );
 }

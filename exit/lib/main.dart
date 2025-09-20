@@ -270,15 +270,37 @@ class _ResultPageState extends State<ResultPage> {
           comparisonResult = 'Weights Matched';
           resultColor = Colors.green;
         });
+        // Send "Weights Matched" to the second_project database
+        _sendDataToSecondProject("Weights Matched");
       } else {
         setState(() {
           comparisonResult = 'Weights not Matched';
           resultColor = Colors.red;
         });
+        // Send "Weights Not Matched" to the second_project database
+        _sendDataToSecondProject("Weights Not Matched");
       }
       // Send data to the third_project database
       _sendDataToThirdProject(comparisonResult, difference);
     }
+  }
+
+  void _sendDataToSecondProject(String status) {
+    final secondProjectReference = FirebaseDatabase(
+      app: Firebase.app('second_project'), // Use the second Firebase app
+    ).reference();
+
+    final cartNumber = widget.scannedValue;
+
+    // Define the path where you want to store this status in the database
+    final statusPath = 'Status/$cartNumber'; // Replace with your desired path
+
+    // Push the status to the database under the specified path
+    secondProjectReference.child(statusPath).set(status).then((_) {
+      print('Status sent to second_project successfully');
+    }).catchError((error) {
+      print('Error sending status to second_project: $error');
+    });
   }
 
   void _listenToWeightChanges() {

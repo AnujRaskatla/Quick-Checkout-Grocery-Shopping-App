@@ -173,6 +173,8 @@ class _ResultPageState extends State<ResultPage> {
     // Fetch data for both "totalWeight" and "Weight"
     _fetchTotalWeight();
     _fetchWeight();
+    // Add a listener to update weightValue when it changes in the database
+    _listenToWeightChanges();
   }
 
   Future<void> _fetchTotalWeight() async {
@@ -198,12 +200,6 @@ class _ResultPageState extends State<ResultPage> {
             _compareValues();
           });
         }
-      } else {
-        setState(() {
-          totalWeight = null;
-          // Compare the values and set the comparison result
-          _compareValues();
-        });
       }
     } catch (error) {
       print('Error fetching data from the second project: $error');
@@ -245,6 +241,22 @@ class _ResultPageState extends State<ResultPage> {
         });
       }
     }
+  }
+
+  void _listenToWeightChanges() {
+    final weightReference =
+        firstProjectReference.child('Counter Number 2/Weight');
+
+    weightReference.onValue.listen((event) {
+      final weightDataSnapshot = event.snapshot;
+      if (weightDataSnapshot.value != null) {
+        setState(() {
+          weightValue = weightDataSnapshot.value as double;
+          // Compare the values and set the comparison result
+          _compareValues();
+        });
+      }
+    });
   }
 
   @override

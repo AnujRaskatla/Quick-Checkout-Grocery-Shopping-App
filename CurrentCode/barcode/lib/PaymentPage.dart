@@ -50,23 +50,24 @@ class PaymentPage extends StatelessWidget {
     }
   }
 
-  Future<void> sendWhatsAppMessage() async {
+  Future<void> sendPDFViaWhatsApp(String pdfFileName) async {
+    final storage = FirebaseStorage.instance;
+
     try {
-      final storage = FirebaseStorage.instance;
-      final pdfStorageRef = storage.ref().child('scanned_items.pdf');
-      final pdfDownloadUrl = await pdfStorageRef.getDownloadURL();
+      final pdfRef = storage.ref().child(pdfFileName);
+      final pdfUrl = await pdfRef.getDownloadURL();
 
-      final whatsappMessage = 'Here is the PDF: $pdfDownloadUrl';
+      String message = 'Here is the PDF file for payment: $pdfUrl';
+      String whatsappUrl =
+          "https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}}";
 
-      final whatsappUrl =
-          'https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(whatsappMessage)}';
       if (await canLaunch(whatsappUrl)) {
         await launch(whatsappUrl);
       } else {
         print('Could not launch WhatsApp.');
       }
     } catch (e) {
-      print('Error sending WhatsApp message: $e');
+      print('Error retrieving PDF download URL: $e');
     }
   }
 
@@ -103,7 +104,9 @@ class PaymentPage extends StatelessWidget {
                   File pdfFile =
                       File('${Directory.systemTemp.path}/$phoneNumber.pdf');
                   await uploadPDFToFirebase(pdfFile);
-                  sendWhatsAppMessage();
+                  // Send PDF to WhatsApp
+                  await sendPDFViaWhatsApp('$phoneNumber.pdf');
+
                   // Implement GPay payment logic here
                 },
                 child: const Row(
@@ -135,6 +138,8 @@ class PaymentPage extends StatelessWidget {
                   File pdfFile =
                       File('${Directory.systemTemp.path}/$phoneNumber.pdf');
                   await uploadPDFToFirebase(pdfFile);
+                  // Send PDF to WhatsApp
+                  await sendPDFViaWhatsApp('$phoneNumber.pdf');
                   // Implement PhonePe payment logic here
                 },
                 child: const Row(
@@ -166,6 +171,8 @@ class PaymentPage extends StatelessWidget {
                   File pdfFile =
                       File('${Directory.systemTemp.path}/$phoneNumber.pdf');
                   await uploadPDFToFirebase(pdfFile);
+                  // Send PDF to WhatsApp
+                  await sendPDFViaWhatsApp('$phoneNumber.pdf');
                 },
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,

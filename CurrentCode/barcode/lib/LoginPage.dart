@@ -55,7 +55,7 @@ class LoginPageState extends State<LoginPage> {
             ElevatedButton(
               onPressed: () {
                 String enteredName = _nameController.text;
-                String enteredPhoneNumber = _phoneNumberController.text;
+                String enteredPhoneNumber = "+91" + _phoneNumberController.text;
 
                 // Assign the entered values to the global variables
                 GlobalData.userName = enteredName;

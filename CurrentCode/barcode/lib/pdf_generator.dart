@@ -8,10 +8,49 @@ class PdfGenerator {
   static Future<void> createPDF(
     List<String> scannedItems,
     Map<String, List<String>> barcodeToInfoMap,
-    ScannedItemsModel scannedItemsModel, // Pass the model as a parameter
-    String phoneNumber, // Add phone number as a parameter
+    ScannedItemsModel scannedItemsModel,
+    String phoneNumber,
   ) async {
     final pdf = pw.Document();
+
+    final data = <List<String>>[
+      <String>['Qty', 'S.no', 'Name', 'Barcode Number', 'Price', 'Weight'],
+    ];
+
+    double totalPrice = 0.0;
+    double totalWeight = 0.0;
+
+    for (int index = 0; index < scannedItems.length; index++) {
+      final scannedItem = scannedItems[index];
+      final info = barcodeToInfoMap[scannedItem] ?? ['N/A', '0.0', '0.0'];
+      final quantity = scannedItemsModel.getQuantity(scannedItem);
+      final initialPrice = double.tryParse(info[1]) ?? 0.0;
+      final initialWeight = double.tryParse(info[2]) ?? 0.0;
+      final updatedPrice = initialPrice * quantity;
+      final updatedWeight = initialWeight * quantity;
+
+      data.add([
+        quantity.toString(),
+        (index + 1).toString(),
+        info.length > 0 ? info[0] : 'N/A',
+        scannedItem,
+        updatedPrice.toStringAsFixed(2),
+        updatedWeight.toStringAsFixed(2),
+      ]);
+
+      totalPrice += updatedPrice;
+      totalWeight += updatedWeight;
+    }
+
+    // Add total row
+    data.add([
+      'Total:',
+      '',
+      '',
+      '',
+      totalPrice.toStringAsFixed(2),
+      totalWeight.toStringAsFixed(2),
+    ]);
 
     pdf.addPage(
       pw.Page(
@@ -20,41 +59,11 @@ class PdfGenerator {
             children: [
               pw.Header(
                 level: 0,
-                child: pw.Text('Scanned Products'),
+                child: pw.Text('Shopping List:'),
               ),
               pw.Table.fromTextArray(
                 context: context,
-                data: <List<String>>[
-                  <String>[
-                    'Qty',
-                    'S.no',
-                    'Name',
-                    'Barcode Number',
-                    'Price',
-                    'Weight'
-                  ],
-                  for (int index = 0; index < scannedItems.length; index++)
-                    [
-                      scannedItemsModel
-                          .getQuantity(scannedItems[index])
-                          .toString(),
-                      (index + 1).toString(),
-                      barcodeToInfoMap[scannedItems[index]]?[0] ?? 'N/A',
-                      scannedItems[index],
-                      (double.tryParse(barcodeToInfoMap[scannedItems[index]]
-                                      ?[1] ??
-                                  '0.0')! *
-                              scannedItemsModel
-                                  .getQuantity(scannedItems[index]))
-                          .toStringAsFixed(2),
-                      (double.tryParse(barcodeToInfoMap[scannedItems[index]]
-                                      ?[2] ??
-                                  '0.0')! *
-                              scannedItemsModel
-                                  .getQuantity(scannedItems[index]))
-                          .toStringAsFixed(2),
-                    ],
-                ],
+                data: data,
               ),
             ],
           );

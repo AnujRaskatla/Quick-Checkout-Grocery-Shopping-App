@@ -84,25 +84,37 @@ class _SearchScreenState extends State<SearchScreen> {
                 _searchedDocId = _docIdController.text;
               });
               if (_searchedDocId.isNotEmpty) {
-                _plistCollection.doc(_searchedDocId).get().then((snapshot) {
-                  if (snapshot.exists) {
-                    Map<String, dynamic> data =
-                        snapshot.data() as Map<String, dynamic>;
-                    data['Quantity'] = 1; // Initial quantity
-                    widget.dataStore.addData(data); // Add the data to DataStore
-                    _showDataPage(widget.dataStore.dataList);
-                  } else {
-                    // Document not found
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Document not found'),
-                      ),
-                    );
-                  }
-                }).catchError((error) {
-                  // Handle errors if needed
-                  print('Error fetching document: $error');
-                });
+                // Check if the data is already in dataList
+                int existingIndex = widget.dataStore.dataList
+                    .indexWhere((data) => data['DocumentID'] == _searchedDocId);
+                if (existingIndex != -1) {
+                  // Data is already present, increment quantity
+                  widget.dataStore.updateQuantity(existingIndex, 1);
+                  _showDataPage(widget.dataStore.dataList);
+                } else {
+                  // Data not found in dataList, fetch it from Firestore
+                  _plistCollection.doc(_searchedDocId).get().then((snapshot) {
+                    if (snapshot.exists) {
+                      Map<String, dynamic> data =
+                          snapshot.data() as Map<String, dynamic>;
+                      data['Quantity'] = 1; // Initial quantity
+                      data['DocumentID'] = _searchedDocId; // Add DocumentID
+                      widget.dataStore
+                          .addData(data); // Add the data to DataStore
+                      _showDataPage(widget.dataStore.dataList);
+                    } else {
+                      // Document not found
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Document not found'),
+                        ),
+                      );
+                    }
+                  }).catchError((error) {
+                    // Handle errors if needed
+                    print('Error fetching document: $error');
+                  });
+                }
               }
             },
             child: Text('Search'),
@@ -125,19 +137,49 @@ class DisplayDataPage extends StatefulWidget {
 }
 
 class _DisplayDataPageState extends State<DisplayDataPage> {
+  bool _isDeleting = false;
+  List<int> _selectedIndices = [];
+
   @override
   Widget build(BuildContext context) {
     double totalPrice = 0;
+    double totalWeight = 0;
 
-    // Calculate the total price based on your data
     for (int index = 0; index < widget.dataList.length; index++) {
       double price = widget.dataList[index]['Price']?.toDouble() ?? 0.0;
       int quantity = widget.dataList[index]['Quantity'] ?? 0;
       totalPrice += (price * quantity);
+
+      double weight = widget.dataList[index]['Weight']?.toDouble() ?? 0.0;
+      totalWeight += (weight * quantity);
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Display Data')),
+      appBar: AppBar(
+        title: Text('Display Data'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(_isDeleting ? Icons.delete : Icons.delete_outline),
+            onPressed: () {
+              setState(() {
+                if (_isDeleting) {
+                  // Delete selected rows
+                  _selectedIndices.sort(); // Sort indices in ascending order
+                  for (int i = _selectedIndices.length - 1; i >= 0; i--) {
+                    int index = _selectedIndices[i];
+                    widget.dataList.removeAt(index);
+                  }
+                  _isDeleting = false;
+                  _selectedIndices.clear();
+                } else {
+                  // Enable delete mode
+                  _isDeleting = true;
+                }
+              });
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: <Widget>[
           Expanded(
@@ -151,11 +193,23 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                     onUpdate: () {
                       setState(() {});
                     },
+                    isDimmed: _selectedIndices.contains(index),
+                    isSelected: _selectedIndices.contains(index),
+                    onTap: () {
+                      setState(() {
+                        if (_isDeleting) {
+                          if (_selectedIndices.contains(index)) {
+                            _selectedIndices.remove(index);
+                          } else {
+                            _selectedIndices.add(index);
+                          }
+                        }
+                      });
+                    },
                   ),
               ],
             ),
           ),
-          // New row at the bottom
           Container(
             margin: EdgeInsets.symmetric(vertical: 2),
             padding: EdgeInsets.all(4.0),
@@ -167,14 +221,20 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Items: ${widget.dataList.length}', // Total number of rows
+                  'Items: ${widget.dataList.length}',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  'Total Price: ₹${totalPrice.toStringAsFixed(2)}', // Total price
+                  '(${totalWeight.toStringAsFixed(2)})',
+                  style: TextStyle(
+                    fontSize: 10,
+                  ),
+                ),
+                Text(
+                  'Total Price: ₹${totalPrice.toStringAsFixed(2)}',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -194,12 +254,19 @@ class DataRow extends StatefulWidget {
   final int index;
   final Function onUpdate;
   final DataStore dataStore;
+  final bool isDimmed;
+  final bool isSelected;
+  final Function()? onTap;
 
-  DataRow(
-      {required this.data,
-      required this.index,
-      required this.onUpdate,
-      required this.dataStore});
+  DataRow({
+    required this.data,
+    required this.index,
+    required this.onUpdate,
+    required this.dataStore,
+    this.isDimmed = false,
+    this.isSelected = false,
+    this.onTap,
+  });
 
   @override
   _DataRowState createState() => _DataRowState();
@@ -217,7 +284,7 @@ class _DataRowState extends State<DataRow> {
   void _updateQuantity(int value) {
     setState(() {
       _quantity += value;
-      _quantity = _quantity.clamp(1, 999); // Limit quantity between 1 and 999
+      _quantity = _quantity.clamp(1, 999);
     });
     widget.dataStore.updateQuantity(widget.index, value);
     widget.onUpdate();
@@ -226,122 +293,119 @@ class _DataRowState extends State<DataRow> {
   @override
   Widget build(BuildContext context) {
     double totalPrice = widget.data['Price'] * _quantity.toDouble();
-    double totalWeight =
-        widget.data['Weight'] * _quantity.toDouble(); // Cast to double
+    double totalWeight = widget.data['Weight'] * _quantity.toDouble();
 
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 2),
-      padding: EdgeInsets.all(4.0),
-      decoration: BoxDecoration(
-        border: Border.all(),
-        borderRadius: BorderRadius.circular(12.0), // Rounded corners
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                ' ${widget.data['Name']}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                '(₹) $totalPrice ',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    '  (${widget.data['Barcode_Number']})',
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 2),
+        padding: EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          border: Border.all(),
+          borderRadius: BorderRadius.circular(12.0),
+          color: widget.isDimmed ? Colors.grey : Colors.white,
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  ' ${widget.data['Name']}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                  Text(
-                    '($totalWeight) ',
+                ),
+                Text(
+                  '(₹) $totalPrice ',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 20, // Adjust the button size as needed
-                        height: 20, // Adjust the button size as needed
-                        decoration: BoxDecoration(
-                          color: Colors.red, // Red color for "-"
-                          borderRadius: BorderRadius.circular(
-                              15.0), // Half of the width/height for a circle
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () => _updateQuantity(-1),
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
-                            padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  15.0), // Match the container's border radius
-                            ),
+                ),
+              ],
+            ),
+            SizedBox(height: 5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '  (${widget.data['Barcode_Number']})',
+                    ),
+                    Text(
+                      '(${totalWeight.toStringAsFixed(2)})',
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(15.0),
                           ),
-                          child: Center(
-                            child: Text(
-                              '-',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    Colors.black, // White color for the symbol
+                          child: ElevatedButton(
+                            onPressed: () => _updateQuantity(-1),
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.white,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '-',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Text(' $_quantity ', style: TextStyle(fontSize: 18)),
-                      Container(
-                        width: 20, // Adjust the button size as needed
-                        height: 20, // Adjust the button size as needed
-                        decoration: BoxDecoration(
-                          color: Colors.green, // Green color for "+"
-                          borderRadius: BorderRadius.circular(
-                              15.0), // Half of the width/height for a circle
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () => _updateQuantity(1),
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
-                            padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  15.0), // Match the container's border radius
-                            ),
+                        Text(' $_quantity ', style: TextStyle(fontSize: 18)),
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(15.0),
                           ),
-                          child: Center(
-                            child: Text(
-                              '+',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    Colors.black, // White color for the symbol
+                          child: ElevatedButton(
+                            onPressed: () => _updateQuantity(1),
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.white,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '+',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

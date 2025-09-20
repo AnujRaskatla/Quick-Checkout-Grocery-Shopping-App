@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:weigh/PhoneEntryPage.dart';
 import 'package:weigh/ScanBarcodePage.dart';
 import 'GlobalData.dart';
 import 'DisplayDataPage.dart';
+import 'ThirdPage.dart';
 
 class CartNumberPage extends StatefulWidget {
   @override

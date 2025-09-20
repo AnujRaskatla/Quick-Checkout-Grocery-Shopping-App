@@ -163,7 +163,7 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                     ),
                     elevation: 5,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    primary: Colors.blue[800],
+                    primary: Color(0xFF455A64),
                   ),
                   child: Text(
                     'Scan Barcode',
@@ -191,7 +191,7 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                     ),
                     elevation: 5,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    primary: Colors.blue[800],
+                    primary: Color(0xFF455A64),
                   ),
                   child: Text('Enter Barcode No.',
                       style: TextStyle(

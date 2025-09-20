@@ -6,11 +6,11 @@ import 'package:csv/csv.dart';
 import 'package:http/http.dart' as http;
 import 'package:excel/excel.dart';
 import 'dart:io';
-import 'LoginPage.dart';
 import 'pdf_generator.dart';
 import 'ScannedItemsModel.dart';
 import 'PaymentPage.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'GlobalData.dart';
 
 class ViewListPage extends StatefulWidget {
   final ScannedItemsModel scannedItemsModel; // Add this line
@@ -63,9 +63,10 @@ class ViewListPageState extends State<ViewListPage>
 
   Future<void> updateTotalWeightInDatabase(double totalWeight) async {
     try {
-      // Upload total weight to Firebase Realtime Database under the corresponding phone number
+      // Upload total weight to Firebase Realtime Database under the corresponding cartNumber
       await _databaseReference
-          .child('phoneNumbers/${widget.phoneNumber}/totalWeight')
+          .child(
+              'cartNumbers/${GlobalData.cartNumber}/totalWeight') // Use cartNumber
           .set(totalWeight);
       print('Total Weight uploaded to the database: $totalWeight');
     } catch (e) {

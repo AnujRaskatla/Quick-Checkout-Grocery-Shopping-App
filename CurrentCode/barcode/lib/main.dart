@@ -7,6 +7,8 @@ import 'LoginPage.dart';
 import 'ScannedItemsModel.dart';
 import 'ScanBarcodePage.dart';
 import 'ViewListPage.dart';
+import 'CartNumberPage.dart';
+import 'GlobalData.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,9 +31,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.grey,
       ),
-      initialRoute: '/',
+      initialRoute: '/cartnumber', // Start with the CartNumberPage.
       routes: {
-        '/': (context) => LoginPage(),
+        '/cartnumber': (context) => CartNumberPage(), // CartNumberPage route.
+        '/login': (context) => LoginPage(), // LoginPage route.
         '/scan': (context) => ScanBarcodePage(),
         '/list': (context) => ViewListPage(
               scannedItemsModel: Provider.of<ScannedItemsModel>(context),

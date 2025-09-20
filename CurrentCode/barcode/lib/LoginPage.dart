@@ -1,23 +1,25 @@
-// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, prefer_const_literals_to_create_immutables, file_names, sized_box_for_whitespace, deprecated_member_use
+// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, deprecated_member_use, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, file_names, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 import 'WelcomePage.dart';
-
-class GlobalData {
-  static String userName = '';
-  static String phoneNumber = '';
-}
+import 'GlobalData.dart';
 
 class LoginPage extends StatefulWidget {
+  LoginPage({this.cartNumber});
+
   @override
-  LoginPageState createState() => LoginPageState();
+  _LoginPageState createState() => _LoginPageState();
+
+  final String? cartNumber;
 }
 
-class LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+
   @override
   void dispose() {
+    _nameController.dispose();
     _phoneNumberController.dispose();
     super.dispose();
   }
@@ -31,25 +33,36 @@ class LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.account_circle,
-                  size: 48,
+            if (widget.cartNumber != null &&
+                widget.cartNumber!.isNotEmpty) // Use GlobalData.cartNumber
+              Text(
+                'Cart Number: ${GlobalData.cartNumber}',
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
-                SizedBox(width: 10),
-                Text(
-                  'Hello',
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
+              )
+            else
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.account_circle,
+                    size: 48,
                     color: Colors.black,
                   ),
-                ),
-              ],
-            ),
+                  SizedBox(width: 10),
+                  Text(
+                    'Hello',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
             SizedBox(height: 20),
             TextField(
               controller: _nameController,
@@ -69,12 +82,11 @@ class LoginPageState extends State<LoginPage> {
                   String enteredName = _nameController.text;
                   String enteredPhoneNumber =
                       "+91${_phoneNumberController.text}";
-
-                  // Upload phone number to Firebase Realtime Database
-
                   GlobalData.userName = enteredName;
                   GlobalData.phoneNumber = enteredPhoneNumber;
+                  // Upload phone number to Firebase Realtime Database
 
+                  // Navigate to the WelcomePage with the entered data.
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(

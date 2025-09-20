@@ -47,6 +47,7 @@ dependencies:
   url_launcher: ^6.1.12
   pdf: ^3.10.4
   firebase_database: ^10.2.5
+  qr_code_scanner: ^1.0.1
 
   
 dev_dependencies:

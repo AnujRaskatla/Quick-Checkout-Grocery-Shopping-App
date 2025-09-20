@@ -5,7 +5,31 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Initialize Firebase
+
+  // Initialize the first Firebase project (replace with your first project config)
+  await Firebase.initializeApp(
+    name: 'first_project',
+    options: FirebaseOptions(
+      appId: '1:667053041442:web:09d8f82f7985fa214b277b',
+      apiKey: 'AIzaSyDPTOp4u6Ge3MhD4smBhrceIRmbpjWkMnU',
+      projectId: 'esp32-e3373',
+      messagingSenderId: '667053041442',
+      databaseURL: 'https://esp32-e3373-default-rtdb.firebaseio.com',
+    ),
+  );
+
+  // Initialize the second Firebase project (replace with your second project config)
+  await Firebase.initializeApp(
+    name: 'second_project',
+    options: FirebaseOptions(
+      apiKey: 'AIzaSyAVVvU_wXUnlABsrQLGo2pfm8mQmaMvskw',
+      appId: '1:877289501258:android:3b92b99f4f07930a92acb3',
+      messagingSenderId: '877289501258',
+      projectId: 'mainweigh',
+      databaseURL: 'https://mainweigh-default-rtdb.firebaseio.com',
+    ),
+  );
+
   runApp(QRScannerApp());
 }
 
@@ -126,18 +150,32 @@ class ResultPage extends StatefulWidget {
 }
 
 class _ResultPageState extends State<ResultPage> {
-  DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
+  late DatabaseReference firstProjectReference;
+  late DatabaseReference secondProjectReference;
   double? totalWeight;
+  double? weightValue;
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize references to both projects' databases
+    firstProjectReference = FirebaseDatabase(
+      app: Firebase.app('first_project'), // Use the first Firebase app
+    ).reference();
+
+    secondProjectReference = FirebaseDatabase(
+      app: Firebase.app('second_project'), // Use the second Firebase app
+    ).reference();
+
+    // Fetch data for both "totalWeight" and "Weight"
     _fetchTotalWeight();
+    _fetchWeight();
   }
 
   Future<void> _fetchTotalWeight() async {
     final reference =
-        databaseReference.child('cartNumbers/${widget.scannedValue}');
+        secondProjectReference.child('cartNumbers/${widget.scannedValue}');
 
     try {
       final event = await reference.once();
@@ -146,16 +184,33 @@ class _ResultPageState extends State<ResultPage> {
         final data = dataSnapshot.value as Map<dynamic, dynamic>;
         if (data.containsKey('totalWeight')) {
           setState(() {
-            totalWeight = data['totalWeight'] as double; // Change to double
+            totalWeight = data['totalWeight'] as double;
           });
         }
       } else {
         setState(() {
-          totalWeight = null; // Data not found
+          totalWeight = null;
         });
       }
     } catch (error) {
-      print('Error fetching data: $error');
+      print('Error fetching data from the second project: $error');
+    }
+  }
+
+  Future<void> _fetchWeight() async {
+    final weightReference = firstProjectReference
+        .child('Counter Number 2/Weight'); // Replace with the correct path
+
+    try {
+      final weightEvent = await weightReference.once();
+      final weightDataSnapshot = weightEvent.snapshot;
+      if (weightDataSnapshot.value != null) {
+        setState(() {
+          weightValue = weightDataSnapshot.value as double;
+        });
+      }
+    } catch (error) {
+      print('Error fetching "Weight" data from the first project: $error');
     }
   }
 
@@ -177,6 +232,10 @@ class _ResultPageState extends State<ResultPage> {
             if (totalWeight == null)
               Text('Total Weight not found',
                   style: TextStyle(fontSize: 18, color: Colors.red)),
+
+            // Display "Weight" if available
+            if (weightValue != null)
+              Text('Weight: $weightValue', style: TextStyle(fontSize: 18)),
           ],
         ),
       ),

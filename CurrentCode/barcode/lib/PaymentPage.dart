@@ -1,10 +1,9 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print, file_names, use_key_in_widget_constructors, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart'; // Import Razorpay package
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'DisplayDataPage.dart';
 import 'IntermediatePage.dart';
 import 'GlobalData.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PaymentPage extends StatefulWidget {
   final List<Map<String, dynamic>> dataList;
@@ -17,6 +16,9 @@ class PaymentPage extends StatefulWidget {
 
 class _PaymentPageState extends State<PaymentPage> {
   late Razorpay _razorpay;
+  bool firstTime = true;
+  int paymentprice = 0;
+  double initialPrice = 0;
 
   @override
   void initState() {
@@ -26,45 +28,82 @@ class _PaymentPageState extends State<PaymentPage> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
 
-    // Initiate Razorpay payment when the page loads
-    initiateRazorpayPayment(context);
+    print('GlobalWeight in paymentpage: ${GlobalData.totalPriceInPaise}');
+    print(
+        'GlobalWeight in paymentpage in INT: ${(GlobalData.totalPriceInPaise * 100).toInt()}');
+
+    double currentPrice = GlobalData.totalPriceInPaise;
+
+    SharedPreferences.getInstance().then((prefs) {
+      double storedInitialPrice = prefs.getDouble('initialPrice') ?? 0;
+      if (storedInitialPrice != 0) {
+        initialPrice = storedInitialPrice;
+      } else {
+        initialPrice = currentPrice;
+        prefs.setDouble('initialPrice', initialPrice);
+      }
+
+      double difference = currentPrice - initialPrice;
+      print('Difference: $difference');
+      if (difference > 0) {
+        //  updateTotalPriceInPaise(currentPrice);
+        paymentprice = (difference).toInt();
+        print('Refund will be Processed in payment page');
+        print('Initial Price1: $initialPrice');
+        print('Current Price1: $currentPrice');
+
+        print('paymentprice1: $paymentprice');
+        initiateRazorpayPayment(context);
+      } else {
+        // If difference is negative
+
+        print('Initial Price2: $initialPrice');
+        print('Current Price2: $currentPrice');
+        paymentprice = currentPrice.toInt();
+        print('paymentprice2: $paymentprice');
+        initiateRazorpayPayment(context);
+      }
+    });
   }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    // Payment was successful
-    // You can implement your logic here, e.g., navigate to a success page
-    print('Payment Successful: ${response.paymentId}');
+  // void updateTotalPriceInPaise(double price) {
+  //   print('double price: $price');
+  //  GlobalData.totalPriceInPaise = price;
+//
+  //  paymentprice = (GlobalData.totalPriceInPaise * 100).toInt();
+  //  print('updateTotalPriceInPaise: $paymentprice');
+//  }
 
-    // Navigate to IntermediatePage after successful payment and PDF upload
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    print('Payment Successful: ${response.paymentId}');
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => IntermediatePage(
-            dataList: widget.dataList, dataStore: widget.dataStore),
+          dataList: widget.dataList,
+          dataStore: widget.dataStore,
+        ),
       ),
     );
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    // Payment failed
-    // You can implement your error handling logic here, e.g., show an error message
     print('Payment Error: ${response.message}');
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    // Handle external wallet payments (e.g., Paytm, Google Pay)
     print('External Wallet Payment: ${response.walletName}');
   }
 
   Future<void> initiateRazorpayPayment(BuildContext context) async {
+    print('inside initiateRazorpayPayment: $paymentprice');
     final options = {
       'key': 'rzp_test_PULsb8Zi0vfFig',
-      'amount':
-          '${GlobalData.totalPriceInPaise}', // Replace with the actual amount in paise
+      'amount': '$paymentprice',
       'name': 'ZuppCart',
       'description': 'Payment for your order',
       'prefill': {
-        'contact': "",
+        'contact': '',
         'email': "${GlobalData.userEmail}",
       },
       'external': {
@@ -76,7 +115,6 @@ class _PaymentPageState extends State<PaymentPage> {
       _razorpay.open(options);
     } catch (e) {
       print('Error initiating Razorpay payment: $e');
-      // Handle error, e.g., show an error message
     }
   }
 

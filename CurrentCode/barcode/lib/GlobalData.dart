@@ -6,7 +6,7 @@ class GlobalData {
   static String? userEmail;
   static double weight = 0.0;
   static double totalPriceInPaise = 0.0;
-
+  static double InitialPrice = 0.0;
   static void setUserProfile(String? name, String? email) {
     userName = name;
     userEmail = email;

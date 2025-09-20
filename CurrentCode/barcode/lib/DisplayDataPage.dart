@@ -190,7 +190,9 @@ class _DisplayPageState extends State<DisplayPage> {
         context,
         MaterialPageRoute(
           builder: (context) => PaymentPage(
-              dataList: widget.dataList, dataStore: widget.dataStore),
+            dataList: widget.dataList,
+            dataStore: widget.dataStore,
+          ),
         ),
       );
     }
@@ -211,11 +213,11 @@ class _DisplayPageState extends State<DisplayPage> {
     }
     int totalPriceInPaise = (totalPrice * 100).toInt();
     GlobalData.totalPriceInPaise = totalPriceInPaise.toDouble();
-    print('GlobalWeight.price: ${GlobalData.totalPriceInPaise}');
+    print('GlobalWeight.price: $totalPriceInPaise');
     updateTotalWeightInDatabase(totalWeigh);
 
     return Scaffold(
-      // backgroundColor: Colors.white,R
+      // backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         elevation: 4,

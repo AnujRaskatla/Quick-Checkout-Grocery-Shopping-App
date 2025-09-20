@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-void main() => runApp(QRScannerApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Initialize Firebase
+  runApp(QRScannerApp());
+}
 
 class QRScannerApp extends StatelessWidget {
   @override
@@ -12,14 +18,7 @@ class QRScannerApp extends StatelessWidget {
   }
 }
 
-class FirstPage extends StatefulWidget {
-  @override
-  _FirstPageState createState() => _FirstPageState();
-}
-
-class _FirstPageState extends State<FirstPage> {
-  String scannedValue = '';
-
+class FirstPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,24 +30,25 @@ class _FirstPageState extends State<FirstPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => QRScannerPage(),
                   ),
-                ).then((value) {
-                  if (value != null) {
-                    setState(() {
-                      scannedValue = value;
-                    });
-                  }
-                });
+                );
+
+                if (result != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ResultPage(scannedValue: result),
+                    ),
+                  );
+                }
               },
               child: Text('Scan QR'),
             ),
-            Text('Scanned Number: $scannedValue',
-                style: TextStyle(fontSize: 18)),
           ],
         ),
       ),
@@ -113,5 +113,73 @@ class _QRScannerPageState extends State<QRScannerPage> {
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+}
+
+class ResultPage extends StatefulWidget {
+  final String scannedValue;
+
+  ResultPage({required this.scannedValue});
+
+  @override
+  _ResultPageState createState() => _ResultPageState();
+}
+
+class _ResultPageState extends State<ResultPage> {
+  DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
+  double? totalWeight;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTotalWeight();
+  }
+
+  Future<void> _fetchTotalWeight() async {
+    final reference =
+        databaseReference.child('cartNumbers/${widget.scannedValue}');
+
+    try {
+      final event = await reference.once();
+      final dataSnapshot = event.snapshot;
+      if (dataSnapshot.value != null) {
+        final data = dataSnapshot.value as Map<dynamic, dynamic>;
+        if (data.containsKey('totalWeight')) {
+          setState(() {
+            totalWeight = data['totalWeight'] as double; // Change to double
+          });
+        }
+      } else {
+        setState(() {
+          totalWeight = null; // Data not found
+        });
+      }
+    } catch (error) {
+      print('Error fetching data: $error');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Result Page'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text('Scanned Number: ${widget.scannedValue}',
+                style: TextStyle(fontSize: 18)),
+            if (totalWeight != null)
+              Text('Total Weight: $totalWeight',
+                  style: TextStyle(fontSize: 18)),
+            if (totalWeight == null)
+              Text('Total Weight not found',
+                  style: TextStyle(fontSize: 18, color: Colors.red)),
+          ],
+        ),
+      ),
+    );
   }
 }

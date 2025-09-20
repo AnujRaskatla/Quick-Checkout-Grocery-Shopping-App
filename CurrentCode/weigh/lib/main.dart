@@ -361,7 +361,6 @@ class ViewListPageState extends State<ViewListPage>
       totalPrice += price * quantity;
       totalWeight += weight * quantity;
     }
-    bool isReceivedWeightEqualToTotal = receivedWeight == totalWeight;
     return DataRow(
       cells: <DataCell>[
         const DataCell(Text('Total:')),
@@ -371,9 +370,6 @@ class ViewListPageState extends State<ViewListPage>
         DataCell(Text(totalPrice.toStringAsFixed(2))),
         DataCell(Text(totalWeight.toStringAsFixed(2))),
       ],
-      color: isReceivedWeightEqualToTotal
-          ? MaterialStateColor.resolveWith((states) => Colors.lightGreen)
-          : null,
     );
   }
 
@@ -436,44 +432,90 @@ class ViewListPageState extends State<ViewListPage>
               ),
             ),
           ),
-          Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                  keyboardType: TextInputType.number,
-                  decoration:
-                      const InputDecoration(labelText: 'Received Weight'),
-                  onChanged: (value) {
-                    setState(() {
-                      receivedWeight = double.tryParse(value) ?? 0.0;
-                    });
-                  })),
-          if (receivedWeight == totalWeight)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Weighing Scale = Total Product Weight',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: FloatingActionButton(
+              child: ElevatedButton(
                 onPressed: () {
-                  // Add your payment logic here
-                  // For example, you could navigate to a payment screen.
-                  // Navigator.pushNamed(context, '/payment');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReceivedWeightPage(
+                        totalWeight: totalWeight,
+                        scannedItemsModel: scannedItemsModel,
+                      ),
+                    ),
+                  );
                 },
-                backgroundColor: Colors.grey,
-                child: const Icon(Icons.payment),
+                child: const Text('Done Shopping'),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ReceivedWeightPage extends StatefulWidget {
+  final double totalWeight;
+  final ScannedItemsModel scannedItemsModel;
+
+  const ReceivedWeightPage({
+    Key? key,
+    required this.totalWeight,
+    required this.scannedItemsModel,
+  }) : super(key: key);
+
+  @override
+  ReceivedWeightPageState createState() => ReceivedWeightPageState();
+}
+
+class ReceivedWeightPageState extends State<ReceivedWeightPage> {
+  double receivedWeight = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    bool isReceivedWeightEqualToTotal = receivedWeight == widget.totalWeight;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Received Weight'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Received Weight'),
+              onChanged: (value) {
+                setState(() {
+                  receivedWeight = double.tryParse(value) ?? 0.0;
+                });
+              },
+            ),
+            if (isReceivedWeightEqualToTotal)
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  'Weighing Scale = Total Product Weight',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to payment screen or perform payment logic here
+                // Navigator.pushNamed(context, '/payment');
+              },
+              child: const Text('Make Payment'),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -12,6 +12,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:excel/excel.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:url_launcher/url_launcher.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -311,6 +312,7 @@ class ViewListPageState extends State<ViewListPage>
   Map<String, List<String>> barcodeToInfoMap = {};
   String csvData = '';
   double receivedWeight = 0.0; // Added received weight
+  firebase_storage.Reference? storageReference;
 
   @override
   void initState() {
@@ -488,6 +490,21 @@ class ViewListPageState extends State<ViewListPage>
     }
   }
 
+  Future<String> _getDownloadUrl() async {
+    final firebase_storage.Reference storageReference = firebase_storage
+        .FirebaseStorage.instance
+        .ref()
+        .child('scanned_items.xlsx');
+
+    try {
+      final url = await storageReference.getDownloadURL();
+      return url;
+    } catch (error) {
+      print('Error getting download URL: $error');
+      return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -551,6 +568,34 @@ class ViewListPageState extends State<ViewListPage>
               child: ElevatedButton(
                 onPressed: () async {
                   await _addScannedItemsToFirestore(scannedItemsModel);
+                  String fileUrl = await _getDownloadUrl();
+                  fileUrl =
+                      fileUrl.trim(); // Remove any leading/trailing whitespace
+                  if (fileUrl.isNotEmpty) {
+                    String message =
+                        "Here is the scanned items Excel file: $fileUrl";
+                    String phone =
+                        "+918143775210"; // Replace with recipient's phone number
+                    String whatsappUrl =
+                        "https://wa.me/$phone?text=${Uri.encodeComponent(message)}";
+
+                    if (await canLaunch(whatsappUrl)) {
+                      await launch(whatsappUrl);
+                    } else {
+                      print("Error launching WhatsApp");
+                    }
+                  } else {
+                    print("File URL is empty");
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReceivedWeightPage(
+                        scannedItemsModel: scannedItemsModel,
+                        fileUrl: fileUrl,
+                      ),
+                    ),
+                  );
                 },
                 child: const Text('Done Shopping'),
               ),

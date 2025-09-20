@@ -210,8 +210,8 @@ class ViewListPageState extends State<ViewListPage>
                   DataColumn(label: Text('S.no')),
                   DataColumn(label: Text('Name')),
                   DataColumn(label: Text('Barcode Number')),
-                  DataColumn(label: Text('Price(₹)')),
-                  DataColumn(label: Text('Weight(g)')),
+                  DataColumn(label: Text('Price')),
+                  DataColumn(label: Text('Weight')),
                 ],
                 rows: List<DataRow>.generate(
                   scannedItems.length,
@@ -220,6 +220,17 @@ class ViewListPageState extends State<ViewListPage>
                     List<String> info =
                         barcodeToInfoMap[scannedItem] ?? ['N/A', 'N/A', 'N/A'];
                     int quantity = scannedItemsModel.getQuantity(scannedItem);
+// Get initial price and weight values from the info list
+                    double initialPrice =
+                        double.tryParse(info.length > 1 ? info[1] : '0.0') ??
+                            0.0;
+                    double initialWeight =
+                        double.tryParse(info.length > 2 ? info[2] : '0.0') ??
+                            0.0;
+
+                    // Calculate updated price and weight based on quantity
+                    double updatedPrice = initialPrice * quantity;
+                    double updatedWeight = initialWeight * quantity;
 
                     return DataRow(cells: <DataCell>[
                       DataCell(Row(
@@ -242,8 +253,10 @@ class ViewListPageState extends State<ViewListPage>
                       DataCell(Text((index + 1).toString())),
                       DataCell(Text(info.length > 0 ? info[0] : 'N/A')),
                       DataCell(Text(scannedItem)),
-                      DataCell(Text(info.length > 1 ? info[1] : 'N/A')),
-                      DataCell(Text(info.length > 2 ? info[2] : 'N/A')),
+                      DataCell(Text(updatedPrice
+                          .toStringAsFixed(2))), // Use updated price here
+                      DataCell(Text(updatedWeight
+                          .toStringAsFixed(2))), // Use updated weight here
                     ]);
                   },
                 )..add(

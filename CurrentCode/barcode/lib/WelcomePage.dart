@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, prefer_const_constructors, deprecated_member_use
 
 import 'package:flutter/material.dart';
 
@@ -19,24 +19,49 @@ class WelcomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.account_circle,
+                  size: 48,
+                  color: Colors.black,
+                ),
+                SizedBox(width: 10),
+                Text(
+                  'Welcome, $userName!',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
             Text(
-              'Welcome $userName,',
-              style: const TextStyle(
-                fontSize: 36,
+              'What would you like to do?',
+              style: TextStyle(
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/scan'),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: Colors.grey[300],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
+                elevation: 5,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                primary: Colors.grey[300],
               ),
-              child: const Text('Scan Barcode'),
+              child: Text('Scan Barcode', style: TextStyle(fontSize: 18)),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             ElevatedButton(
               onPressed: () => Navigator.pushNamed(
                 context,
@@ -44,12 +69,17 @@ class WelcomePage extends StatelessWidget {
                 arguments: {'phoneNumber': phoneNumber},
               ),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: Colors.grey[300],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
+                elevation: 5,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                primary: Colors.grey[300],
               ),
-              child: const Text('View List'),
+              child: Text('View List', style: TextStyle(fontSize: 18)),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
           ],
         ),
       ),

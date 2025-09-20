@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, use_key_in_widget_constructors, prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, prefer_const_literals_to_create_immutables, file_names, sized_box_for_whitespace, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'WelcomePage.dart';
@@ -19,7 +19,7 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    _phoneNumberController.dispose(); // Dispose of the controller
+    _phoneNumberController.dispose();
     super.dispose();
   }
 
@@ -32,13 +32,24 @@ class LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Hello',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.account_circle,
+                  size: 48,
+                  color: Colors.black,
+                ),
+                SizedBox(width: 10),
+                Text(
+                  'Hello',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 20),
             TextField(
@@ -52,29 +63,42 @@ class LoginPageState extends State<LoginPage> {
               keyboardType: TextInputType.phone,
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                String enteredName = _nameController.text;
-                String enteredPhoneNumber = "+91${_phoneNumberController.text}";
+            Container(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  String enteredName = _nameController.text;
+                  String enteredPhoneNumber =
+                      "+91${_phoneNumberController.text}";
 
-                GlobalData.userName = enteredName;
-                GlobalData.phoneNumber = enteredPhoneNumber;
+                  GlobalData.userName = enteredName;
+                  GlobalData.phoneNumber = enteredPhoneNumber;
 
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WelcomePage(
-                      userName: enteredName,
-                      phoneNumber: enteredPhoneNumber,
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WelcomePage(
+                        userName: enteredName,
+                        phoneNumber: enteredPhoneNumber,
+                      ),
                     ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.grey[300],
+                  onPrimary: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    side: BorderSide(color: Colors.grey[300]!),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: Colors.grey[300],
+                  elevation: 5,
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                ),
+                child: Text(
+                  'Submit',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-              child: Text('Submit'),
             ),
           ],
         ),

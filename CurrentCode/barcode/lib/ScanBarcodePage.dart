@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, use_build_context_synchronously
+// ignore_for_file: file_names, prefer_const_constructors, use_build_context_synchronously, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -12,18 +12,19 @@ class ScanBarcodePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.grey[300],
-        title: const Text(
-          'Select an Option:',
-          style: TextStyle(color: Colors.black),
-        ),
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              'Choose an Option..',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 String barcode = await FlutterBarcodeScanner.scanBarcode(
@@ -45,12 +46,17 @@ class ScanBarcodePage extends StatelessWidget {
                 }
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: Colors.grey[300],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
+                elevation: 5,
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                primary: Colors.grey[300],
               ),
-              child: const Text('Start Barcode Scan'),
+              child: Text('Start Barcode Scan', style: TextStyle(fontSize: 18)),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 await showDialog(
@@ -63,10 +69,16 @@ class ScanBarcodePage extends StatelessWidget {
                 Navigator.pushNamed(context, '/list');
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: Colors.grey[300],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
+                elevation: 5,
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                primary: Colors.grey[300],
               ),
-              child: const Text('Enter Barcode Manually'),
+              child: Text('Enter Barcode Manually',
+                  style: TextStyle(fontSize: 18)),
             ),
           ],
         ),

@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, prefer_is_empty, avoid_print, prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: file_names, prefer_is_empty, avoid_print, prefer_const_constructors, use_build_context_synchronously, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -273,18 +273,23 @@ class ViewListPageState extends State<ViewListPage>
             ),
           ),
           Align(
-            alignment: Alignment.bottomRight,
+            alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ElevatedButton(
                     onPressed: () => fetchAndCompareWeight(scannedItemsModel),
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.black,
-                      backgroundColor: Colors
-                          .grey[300], // Set the button text color to black
+                      backgroundColor: Colors.grey[300],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                            color: Colors.grey[
+                                300]!), // Set the button text color to black
+                      ),
                     ),
                     child: const Text('Fetch Weight'),
                   ),
@@ -292,34 +297,42 @@ class ViewListPageState extends State<ViewListPage>
                   Text(
                     'Fetched Weight: $fetchedWeight',
                     style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await createXLSXFile(scannedItems, barcodeToInfoMap);
-                      await PdfGenerator.createPDF(
-                          scannedItems,
-                          barcodeToInfoMap,
-                          scannedItemsModel,
-                          GlobalData.phoneNumber);
+                  SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await createXLSXFile(scannedItems, barcodeToInfoMap);
+                        await PdfGenerator.createPDF(
+                            scannedItems,
+                            barcodeToInfoMap,
+                            scannedItemsModel,
+                            GlobalData.phoneNumber);
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaymentPage(
-                            scannedItems: scannedItems,
-                            barcodeToInfoMap: barcodeToInfoMap,
-                            scannedItemsModel: scannedItemsModel,
-                            phoneNumber: GlobalData.phoneNumber,
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PaymentPage(
+                              scannedItems: scannedItems,
+                              barcodeToInfoMap: barcodeToInfoMap,
+                              scannedItemsModel: scannedItemsModel,
+                              phoneNumber: GlobalData.phoneNumber,
+                            ),
                           ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.grey[300],
+                        onPrimary: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(color: Colors.grey[300]!),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      backgroundColor: Colors.grey[300],
+                      ),
+                      child: Text('Done Shopping'),
                     ),
-                    child: const Text('Done Shopping'),
                   ),
                 ],
               ),

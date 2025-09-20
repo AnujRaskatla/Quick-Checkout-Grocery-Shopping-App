@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, prefer_const_literals_to_create_immutables, prefer_const_constructors, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,41 +17,95 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Enter Barcode Manually'),
-      content: TextField(
-        controller: _barcodeController,
-        keyboardType: TextInputType.number,
-        decoration: const InputDecoration(labelText: 'Barcode'),
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
       ),
-      actions: <Widget>[
-        ElevatedButton(
-          onPressed: () {
-            String enteredBarcode = _barcodeController.text;
-            if (enteredBarcode.isNotEmpty) {
-              ScannedItemsModel scannedItemsModel =
-                  Provider.of<ScannedItemsModel>(context, listen: false);
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.qr_code_scanner,
+                  size: 36,
+                  color: Colors.black,
+                ),
+                SizedBox(width: 10),
+                Text(
+                  'Enter Barcode Number',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _barcodeController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Barcode',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    String enteredBarcode = _barcodeController.text;
+                    if (enteredBarcode.isNotEmpty) {
+                      ScannedItemsModel scannedItemsModel =
+                          Provider.of<ScannedItemsModel>(context,
+                              listen: false);
 
-              if (scannedItemsModel.scannedItems.contains(enteredBarcode)) {
-                // If the barcode exists, increment its quantity
-                scannedItemsModel.incrementQuantity(enteredBarcode);
-              } else {
-                // If the barcode is new, add it to the list
-                scannedItemsModel.addScannedItem(enteredBarcode);
-              }
+                      if (scannedItemsModel.scannedItems
+                          .contains(enteredBarcode)) {
+                        // If the barcode exists, increment its quantity
+                        scannedItemsModel.incrementQuantity(enteredBarcode);
+                      } else {
+                        // If the barcode is new, add it to the list
+                        scannedItemsModel.addScannedItem(enteredBarcode);
+                      }
 
-              Navigator.pop(context);
-            }
-          },
-          child: const Text('Add'),
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.grey[300],
+                    onPrimary: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                  ),
+                  child: const Text('Add'),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.grey[300],
+                    onPrimary: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                  ),
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+          ],
         ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('Cancel'),
-        ),
-      ],
+      ),
     );
   }
 }

@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, avoid_print, file_names, use_key_in_widget_constructors, deprecated_member_use
+// ignore_for_file: prefer_const_constructors, avoid_print, file_names, use_key_in_widget_constructors, deprecated_member_use, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -96,62 +96,68 @@ class PaymentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.grey[300],
-        title: const Text(
-          'Select Payment Method:',
-          style: TextStyle(color: Colors.black),
-        ),
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Spacer(),
-
-            // UPI Payment Button
-            buildPaymentButton('UPI', Colors.grey[300]!, Icons.payment,
-                () async {
-              await processPayment();
-              // Implement GPay payment logic here
-            }),
-
-            SizedBox(height: 16),
-
-            // Debit Card Payment Button
-            buildPaymentButton('Debit Card', Colors.grey[300]!, Icons.payment,
-                () async {
-              await processPayment();
-              // Implement PhonePe payment logic here
-            }),
-
-            SizedBox(height: 16),
-
-            // Net Banking Payment Button
-            buildPaymentButton('Net Banking', Colors.grey[300]!, Icons.payment,
-                () async {
-              await processPayment();
-              // Implement Net Banking payment logic here
-            }),
-
-            Spacer(),
-          ],
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32.0),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.payment,
+                  size: 64.0,
+                  color: Colors.black,
+                ),
+                SizedBox(height: 16.0),
+                Text(
+                  'Select a Payment Option',
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                buildPaymentButton('UPI', Colors.grey[300]!, Icons.payment,
+                    () async {
+                  await processPayment();
+                }),
+                SizedBox(height: 16),
+                buildPaymentButton(
+                    'Debit Card', Colors.grey[300]!, Icons.payment, () async {
+                  await processPayment();
+                }),
+                SizedBox(height: 16),
+                buildPaymentButton(
+                    'Net Banking', Colors.grey[300]!, Icons.payment, () async {
+                  await processPayment();
+                }),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // Build a styled payment button
   Widget buildPaymentButton(
       String label, Color color, IconData icon, VoidCallback onPressed) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: color,
+          primary: color,
           padding: const EdgeInsets.all(16.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
         ),
         onPressed: onPressed,
         child: Row(
@@ -160,14 +166,14 @@ class PaymentPage extends StatelessWidget {
             Icon(
               icon,
               color: Colors.black,
-            ), // Set the icon color to black),
+            ),
             SizedBox(width: 8.0),
             Text(
               label,
               style: TextStyle(
                 fontSize: 18.0,
                 color: Colors.black,
-              ), // Set the font color to black),
+              ),
             ),
           ],
         ),

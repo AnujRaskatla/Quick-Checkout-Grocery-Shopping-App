@@ -1,0 +1,499 @@
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, use_build_context_synchronously, deprecated_member_use, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_print, prefer_const_declarations
+
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize the first Firebase project (replace with your first project config)
+  await Firebase.initializeApp(
+    name: 'first_project',
+    options: FirebaseOptions(
+      appId: '1:667053041442:web:09d8f82f7985fa214b277b',
+      apiKey: 'AIzaSyDPTOp4u6Ge3MhD4smBhrceIRmbpjWkMnU',
+      projectId: 'esp32-e3373',
+      messagingSenderId: '667053041442',
+      databaseURL: 'https://esp32-e3373-default-rtdb.firebaseio.com',
+    ),
+  );
+
+  // Initialize the second Firebase project (replace with your second project config)
+  await Firebase.initializeApp(
+    name: 'second_project',
+    options: FirebaseOptions(
+      apiKey: 'AIzaSyAVVvU_wXUnlABsrQLGo2pfm8mQmaMvskw',
+      appId: '1:877289501258:android:3b92b99f4f07930a92acb3',
+      messagingSenderId: '877289501258',
+      projectId: 'mainweigh',
+      databaseURL: 'https://mainweigh-default-rtdb.firebaseio.com',
+    ),
+  );
+
+  // Initialize the second Firebase project (replace with your second project config)
+  await Firebase.initializeApp(
+    name: 'third_project',
+    options: FirebaseOptions(
+      apiKey: 'AIzaSyCWgAin4gz1Xdj_yr2cdNdUhkVu2bnNKV8',
+      appId: '1:1072910885592:web:c8d332dcf9a92780fe2dad',
+      messagingSenderId: '1072910885592',
+      projectId: 'security-a5b42',
+      databaseURL: 'https://security-a5b42-default-rtdb.firebaseio.com',
+    ),
+  );
+
+  runApp(QRScannerApp());
+}
+
+class QRScannerApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: SignInPage(),
+    );
+  }
+}
+
+class SignInPage extends StatelessWidget {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+
+  Future<User?> _handleSignIn() async {
+    try {
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      final UserCredential authResult =
+          await _auth.signInWithCredential(credential);
+      final User? user = authResult.user;
+      return user;
+    } catch (error) {
+      print(error);
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Google Sign-In Example'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            final User? user = await _handleSignIn();
+            if (user != null) {
+              // User signed in successfully.
+              print("Signed in as ${user.displayName}");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FirstPage(),
+                ),
+              );
+            } else {
+              // Sign-in failed.
+              print("Sign-in failed");
+            }
+          },
+          child: Text('Sign in with Google'),
+        ),
+      ),
+    );
+  }
+}
+
+class FirstPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => QRScannerPage(),
+                  ),
+                );
+
+                if (result != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ResultPage(scannedValue: result),
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                primary: Colors.grey[300],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
+              ),
+              child: Text(
+                'Scan QR',
+                style: TextStyle(
+                  fontSize: 18, // Adjust the font size as needed
+                  fontWeight: FontWeight.bold, // Make the font bold
+                  color: Colors.black, // Change the text color to black
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class QRScannerPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _QRScannerPageState();
+}
+
+class _QRScannerPageState extends State<QRScannerPage> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late QRViewController controller;
+  bool isScanning = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Scan QR',
+          style: TextStyle(
+            color: Colors.black, // Text color
+            fontSize: 24, // Text size
+            // Text weight
+          ),
+        ),
+        backgroundColor: Colors.grey[300],
+        elevation: 4, // Elevation for a shadow effect
+        centerTitle: true, // Center the title text
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            if (isScanning) {
+              controller.dispose();
+            }
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 5,
+            child: QRView(
+              key: qrKey,
+              onQRViewCreated: _onQRViewCreated,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    this.controller = controller;
+
+    controller.scannedDataStream.listen((scanData) {
+      if (isScanning) {
+        setState(() {
+          isScanning = false;
+          // Pass the scanned value back to the FirstPage
+          Navigator.pop(context, scanData.code);
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+}
+
+class ResultPage extends StatefulWidget {
+  final String scannedValue;
+
+  ResultPage({required this.scannedValue});
+
+  @override
+  _ResultPageState createState() => _ResultPageState();
+}
+
+class _ResultPageState extends State<ResultPage> {
+  late DatabaseReference firstProjectReference;
+  late DatabaseReference secondProjectReference;
+  double? totalWeight;
+  double? weightValue;
+  String comparisonResult = ''; // To store the comparison result text
+  Color resultColor = Colors.black; // To store the text color
+  String differenceText = ''; // Define differenceText at the class level
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize references to both projects' databases
+    firstProjectReference = FirebaseDatabase(
+      app: Firebase.app('first_project'), // Use the first Firebase app
+    ).reference();
+
+    secondProjectReference = FirebaseDatabase(
+      app: Firebase.app('second_project'), // Use the second Firebase app
+    ).reference();
+
+    // Fetch data for both "totalWeight" and "Weight"
+    _fetchTotalWeight();
+    _fetchWeight();
+    // Add a listener to update weightValue when it changes in the database
+    _listenToWeightChanges();
+  }
+
+  Future<void> _fetchTotalWeight() async {
+    final reference =
+        secondProjectReference.child('cartNumbers/${widget.scannedValue}');
+
+    try {
+      final event = await reference.once();
+      final dataSnapshot = event.snapshot;
+      if (dataSnapshot.value != null) {
+        final data = dataSnapshot.value as Map<dynamic, dynamic>;
+        final totalWeightValue = data['totalWeight'];
+        if (totalWeightValue is double || totalWeightValue is int) {
+          setState(() {
+            totalWeight = totalWeightValue.toDouble();
+            // Compare the values and set the comparison result
+            _compareValues();
+          });
+        } else {
+          setState(() {
+            totalWeight = null;
+            // Compare the values and set the comparison result
+            _compareValues();
+          });
+        }
+      }
+    } catch (error) {
+      print('Error fetching data from the second project: $error');
+    }
+  }
+
+  Future<void> _fetchWeight() async {
+    final weightReference =
+        firstProjectReference.child('Counter Number 2/Weight');
+
+    try {
+      final weightEvent = await weightReference.once();
+      final weightDataSnapshot = weightEvent.snapshot;
+      if (weightDataSnapshot.value != null) {
+        final value = weightDataSnapshot.value;
+        if (value is int) {
+          // Convert the integer value to double
+          setState(() {
+            weightValue = value.toDouble();
+            // Compare the values and set the comparison result
+            _compareValues();
+          });
+        } else if (value is double) {
+          setState(() {
+            weightValue = value;
+            // Compare the values and set the comparison result
+            _compareValues();
+          });
+        } else {
+          setState(() {
+            weightValue = null;
+            // Compare the values and set the comparison result
+            _compareValues();
+          });
+        }
+      }
+    } catch (error) {
+      print('Error fetching "Weight" data from the first project: $error');
+    }
+  }
+
+  // Compare the values and set the comparison result
+  void _compareValues() {
+    if (totalWeight != null && weightValue != null) {
+      final difference = (totalWeight! - weightValue!).abs();
+      if (difference <= 20) {
+        setState(() {
+          comparisonResult = 'Weights Matched';
+          resultColor = Colors.green;
+          differenceText = ''; // Set differenceText to an empty string
+        });
+        // Send "Weights Matched" to the second_project database
+        _sendDataToSecondProject("Weights Matched");
+      } else {
+        setState(() {
+          comparisonResult = 'Weights not Matched';
+          resultColor = Colors.red;
+          if (difference > 1) {
+            differenceText =
+                'Difference in weights: ${difference.toStringAsFixed(1)}g';
+          } else {
+            differenceText = ''; // Set differenceText to an empty string
+          }
+        });
+        // Send "Weights Not Matched" to the second_project database
+        _sendDataToSecondProject("Weights Not Matched");
+      }
+      // Send data to the third_project database
+      _sendDataToThirdProject(comparisonResult, difference);
+    }
+  }
+
+  void _sendDataToSecondProject(String status) {
+    final secondProjectReference = FirebaseDatabase(
+      app: Firebase.app('second_project'), // Use the second Firebase app
+    ).reference();
+
+    final cartNumber = widget.scannedValue;
+
+    // Define the path where you want to store this status in the database
+    final statusPath = 'Status/$cartNumber'; // Replace with your desired path
+
+    // Push the status to the database under the specified path
+    secondProjectReference.child(statusPath).set(status).then((_) {
+      print('Status sent to second_project successfully');
+    }).catchError((error) {
+      print('Error sending status to second_project: $error');
+    });
+  }
+
+  void _listenToWeightChanges() {
+    final weightReference =
+        firstProjectReference.child('Counter Number 2/Weight');
+
+    weightReference.onValue.listen((event) {
+      final weightDataSnapshot = event.snapshot;
+      if (weightDataSnapshot.value != null) {
+        setState(() {
+          weightValue = weightDataSnapshot.value as double;
+          // Compare the values and set the comparison result
+          _compareValues();
+        });
+      }
+    });
+  }
+
+  void _sendDataToThirdProject(String comparisonResult, double difference) {
+    final thirdProjectReference = FirebaseDatabase(
+      app: Firebase.app('third_project'), // Use the third Firebase app
+    ).reference();
+
+    final cartNumber = widget.scannedValue;
+    final data = {
+      'CartNumber': cartNumber,
+      'TotalWeight': totalWeight,
+      'WeightValue': weightValue,
+      'ComparisonResult': comparisonResult,
+      'Difference': difference,
+    };
+
+    // Define the path where you want to store this data in the database
+    final dataPath =
+        'CounterDetails/Counter Number 2'; // Replace with your desired path
+
+    // Push the data to the database under the specified path
+    thirdProjectReference.child(dataPath).set(data).then((_) {
+      print('Data sent to third_project successfully');
+    }).catchError((error) {
+      print('Error sending data to third_project: $error');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String differenceText = '';
+    if (totalWeight != null && weightValue != null) {
+      final difference = (totalWeight! - weightValue!).abs();
+      if (difference > 1) {
+        differenceText =
+            'Difference in weights: ${difference.toStringAsFixed(1)}g';
+      }
+    }
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Cart Number: ${widget.scannedValue}',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 40),
+            // Total Weight Section
+            if (totalWeight != null)
+              Column(
+                children: [
+                  Text(
+                    'Weight of Shopping Items: ${totalWeight!.toStringAsFixed(1)}g',
+                    style: TextStyle(fontSize: 21),
+                  ),
+                ],
+              ),
+            if (totalWeight == null)
+              Text(
+                'Total Weight not found',
+                style: TextStyle(fontSize: 18, color: Colors.red),
+              ),
+            SizedBox(height: 20),
+            // Weight Section
+            if (weightValue != null)
+              Column(
+                children: [
+                  Text(
+                    'Weight on Weighing Scale: ${weightValue!.toStringAsFixed(1)}g',
+                    style: TextStyle(fontSize: 21),
+                  ),
+                ],
+              ),
+            SizedBox(height: 40),
+            // Comparison Result Section
+            Text(
+              comparisonResult,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: resultColor,
+              ),
+            ),
+            // Difference in Weights Section
+            if (differenceText.isNotEmpty) SizedBox(height: 20),
+            Text(
+              differenceText,
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.bold,
+                color: resultColor, // You can adjust the color as needed
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

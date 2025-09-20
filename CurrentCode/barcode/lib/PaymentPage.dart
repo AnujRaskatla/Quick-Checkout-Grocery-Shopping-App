@@ -3,11 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart'; // Import Razorpay package
 import 'IntermediatePage.dart';
+import 'GlobalData.dart';
 
 class PaymentPage extends StatefulWidget {
   final String phoneNumber;
-  final double totalPrice;
-  const PaymentPage({required this.phoneNumber, required this.totalPrice});
+  final int totalPriceInPaise;
+  const PaymentPage(
+      {required this.phoneNumber, required this.totalPriceInPaise});
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
@@ -58,12 +60,13 @@ class _PaymentPageState extends State<PaymentPage> {
   Future<void> initiateRazorpayPayment(BuildContext context) async {
     final options = {
       'key': 'rzp_test_PULsb8Zi0vfFig',
-      'amount': 10000, // Replace with the actual amount in paise
-      'name': 'Your App Name',
+      'amount':
+          widget.totalPriceInPaise, // Replace with the actual amount in paise
+      'name': 'ZuppCart',
       'description': 'Payment for your order',
       'prefill': {
         'contact': widget.phoneNumber,
-        'email': 'example@email.com',
+        'email': GlobalData.userName,
       },
       'external': {
         'wallets': ['paytm'],
@@ -97,10 +100,10 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                   SizedBox(height: 16.0),
                   Text(
-                    'Processing Payment...',
+                    'Redirecting to Payment Gateway...',
                     style: TextStyle(
                       fontSize: 24.0,
-                      color: Colors.black,
+                      color: Colors.indigo[900],
                     ),
                   ),
                 ],

@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'DisplayDataPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'GlobalData.dart';
 
 class ScanBarcodePage extends StatefulWidget {
   final DataStore dataStore;
 
-  ScanBarcodePage({required this.dataStore});
+  ScanBarcodePage({
+    required this.dataStore,
+  });
 
   @override
   _ScanBarcodePageState createState() => _ScanBarcodePageState();
@@ -30,23 +33,54 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
+      body: ListView(
+        // Use ListView for scrolling
         children: [
-          Expanded(
-            flex: 3, // Image takes up 3/4 of the page
+          Container(
+            height: MediaQuery.of(context).size.height *
+                0.60, // Adjust the height as needed
             child: Image.asset('assets/bs.jpg'),
           ),
-          Expanded(
-            flex: 1, // Text and buttons take up 1/4 of the page
+          Padding(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Welcome, ${GlobalData.userName}!',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 8),
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.indigo[900], // Customize the bubble color
+                      ),
+                      child: Text(
+                        '${GlobalData.cartNumber}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
                 Text(
-                  'Choose an Option..',
+                  'Scan a Barcode of a Product to add to Shopping list',
                   style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.indigo[900],
+                    fontSize: 15,
+                    color: Colors.black87,
                   ),
                 ),
                 SizedBox(height: 20),
@@ -130,10 +164,9 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     primary: Color(0xFFFF725E),
                   ),
-                  child: Text('Enter Barcode Manually',
-                      style: TextStyle(fontSize: 18)),
+                  child:
+                      Text('Enter Barcode No.', style: TextStyle(fontSize: 18)),
                 ),
-                SizedBox(height: 60),
               ],
             ),
           ),

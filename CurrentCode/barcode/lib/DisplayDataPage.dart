@@ -66,7 +66,7 @@ class _DisplayPageState extends State<DisplayPage> {
     }
   }
 
-  Future<void> _showConfirmationDialog() async {
+  Future<void> _showConfirmationDialog(int totalPriceInPaise) async {
     bool confirm = await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -102,7 +102,7 @@ class _DisplayPageState extends State<DisplayPage> {
         MaterialPageRoute(
           builder: (context) => PaymentPage(
             phoneNumber: GlobalData.phoneNumber,
-            totalPrice: totalPrice,
+            totalPriceInPaise: totalPriceInPaise,
           ),
         ),
       );
@@ -111,12 +111,13 @@ class _DisplayPageState extends State<DisplayPage> {
 
   @override
   Widget build(BuildContext context) {
-    double totalPrice = 0;
     double totalWeight = 0;
-
+    int totalPriceInPaise = 0;
     for (int index = 0; index < widget.dataList.length; index++) {
       double price = widget.dataList[index]['Price']?.toDouble() ?? 0.0;
       int quantity = widget.dataList[index]['Quantity'] ?? 0;
+      totalPriceInPaise +=
+          ((price * quantity) * 100).toInt(); // Convert to paise
       totalPrice += (price * quantity);
 
       double weight = widget.dataList[index]['Weight']?.toDouble() ?? 0.0;
@@ -261,7 +262,7 @@ class _DisplayPageState extends State<DisplayPage> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              _showConfirmationDialog();
+                              _showConfirmationDialog(totalPriceInPaise);
                             },
                             style: ElevatedButton.styleFrom(
                               primary: Color(0xFFFF725E),

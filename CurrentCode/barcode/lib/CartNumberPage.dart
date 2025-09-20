@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:weigh/ScanBarcodePage.dart';
 
+import 'DisplayDataPage.dart';
 import 'GlobalData.dart';
-import 'WelcomePage.dart';
 
 class CartNumberPage extends StatefulWidget {
   @override
@@ -55,10 +56,8 @@ class _CartNumberPageState extends State<CartNumberPage> {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            WelcomePage(
-                          cartNumber: GlobalData.cartNumber,
-                          userName: GlobalData.userName,
-                          phoneNumber: GlobalData.phoneNumber,
+                            ScanBarcodePage(
+                          dataStore: DataStore(),
                         ), // Replace SecondPage() with your SecondPage
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {

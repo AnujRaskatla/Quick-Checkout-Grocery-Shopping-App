@@ -42,26 +42,34 @@ class _PaymentPageState extends State<PaymentPage> {
         initialPrice = currentPrice;
         prefs.setDouble('initialPrice', initialPrice);
       }
-
+      print('Current Price (bd): $currentPrice');
+      print('Initial Price (bd): $initialPrice');
+      print('Meter (bd): ${GlobalData.meter}');
+      currentPrice = currentPrice - GlobalData.meter;
       double difference = currentPrice - initialPrice;
+      GlobalData.meter = difference + GlobalData.meter;
+      print('Meter (ad): ${GlobalData.meter}');
       print('Difference: $difference');
       if (difference > 0) {
         //  updateTotalPriceInPaise(currentPrice);
         paymentprice = (difference).toInt();
-        print('Refund will be Processed in payment page');
-        print('Initial Price1: $initialPrice');
-        print('Current Price1: $currentPrice');
 
-        print('paymentprice1: $paymentprice');
+        print('Initial Price (st): $initialPrice');
+        print('Current Price (st): $currentPrice');
+
+        print('paymentprice (st): $paymentprice');
         initiateRazorpayPayment(context);
       } else {
         // If difference is negative
-
-        print('Initial Price2: $initialPrice');
-        print('Current Price2: $currentPrice');
-        paymentprice = currentPrice.toInt();
-        print('paymentprice2: $paymentprice');
-        initiateRazorpayPayment(context);
+        if (difference == 0) {
+          print('Initial Price (ft): $initialPrice');
+          print('Current Price (ft): $currentPrice');
+          paymentprice = currentPrice.toInt();
+          print('paymentprice (ft): $paymentprice');
+          initiateRazorpayPayment(context);
+        } else {
+          print('Refund will be Processed in payment page');
+        }
       }
     });
   }

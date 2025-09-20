@@ -3,6 +3,7 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart'; // for rootBundle
 import 'package:csv/csv.dart'; // for CSV parsing
+import 'LoginPage.dart';
 
 void main() {
   runApp(
@@ -52,45 +53,10 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const WelcomePage(),
+        '/': (context) => LoginPage(),
         '/scan': (context) => const ScanBarcodePage(),
         '/list': (context) => const ViewListPage(),
       },
-    );
-  }
-}
-
-class WelcomePage extends StatelessWidget {
-  const WelcomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Welcome Anuj',
-              style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/scan'),
-              child: const Text('Scan Barcode'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/list'),
-              child: const Text('View List'),
-            ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
     );
   }
 }

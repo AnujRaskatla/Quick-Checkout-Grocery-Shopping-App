@@ -82,6 +82,7 @@ flutter:
    - android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
    - assets/ig.jpg
    - assets/sp.jpg
+   - assets/sq.jpg
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

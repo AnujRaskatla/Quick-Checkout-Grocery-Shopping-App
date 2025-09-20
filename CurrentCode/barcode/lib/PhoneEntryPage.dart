@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, prefer_const_constructors
+// ignore_for_file: file_names, prefer_const_constructors, use_key_in_widget_constructors, use_build_context_synchronously, avoid_print, deprecated_member_use, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_unnecessary_containers
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -112,6 +112,7 @@ class PhoneEntryPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                SizedBox(height: 90),
               ],
             ),
           ),
@@ -318,7 +319,7 @@ class _SecondPageState extends State<SecondPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CartNumberPage(),
+                                  builder: (context) => ThirdPage(),
                                 ),
                               );
                             },
@@ -357,5 +358,78 @@ Future<Map<String, dynamic>?> getUserDataFromFirestore(String uid) async {
     return docSnapshot.data() as Map<String, dynamic>;
   } else {
     return null;
+  }
+}
+
+class ThirdPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                      'assets/sq.jpg'), // Replace with your image path
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Scan QR code on your Cart',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Press on the below button to Scan QR',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(height: 30),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // Navigate to the CartNumberPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CartNumberPage(),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.qr_code_scanner),
+                  label: Text(''),
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFFFF914D),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 20,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    elevation: 5.0,
+                  ),
+                ),
+                SizedBox(height: 90),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

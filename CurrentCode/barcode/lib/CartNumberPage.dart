@@ -25,36 +25,29 @@ class _CartNumberPageState extends State<CartNumberPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Scan Cart Number'),
-      ),
       body: Column(
         children: <Widget>[
           Expanded(
-            flex: 5,
+            flex: 3, // Scanner screen takes up 3/4 of the page
             child: QRView(
               key: qrKey,
               onQRViewCreated: _onQRViewCreated,
             ),
           ),
           Expanded(
-            flex: 1,
-            child: Center(
-              child: Text(
-                'Received Cart Number: $cartNumberz', // Display the scanned cart number.
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            flex: 1, // Cart Number and Proceed button take up 1/4 of the page
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
+                Text(
+                  'Received Cart Number: $cartNumberz',
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.indigo[900]),
+                ),
+                SizedBox(height: 30),
+                ElevatedButton.icon(
                   onPressed: () {
                     // Navigate to the login page with the cart number.
                     Navigator.pushReplacement(
@@ -65,21 +58,18 @@ class _CartNumberPageState extends State<CartNumberPage> {
                       ),
                     );
                   },
+                  icon: Icon(Icons.arrow_forward),
+                  label: Text(''),
                   style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          20), // Adjust the border radius as needed
-                      side:
-                          BorderSide(color: Colors.grey[300]!), // Border color
-                    ),
-                    elevation: 5, // Elevation (shadow)
+                    primary: Color(0xFFFF914D),
                     padding: EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 15), // Padding
-                    primary: Colors.grey[300], // Button background color
-                  ),
-                  child: Text(
-                    'Proceed',
-                    style: TextStyle(fontSize: 18),
+                      horizontal: 20,
+                      vertical: 20,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    elevation: 5.0,
                   ),
                 ),
               ],

@@ -11,15 +11,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'IntermediatePage.dart';
 
 class PaymentPage extends StatefulWidget {
-  final List<String> scannedItems;
-  final Map<String, List<String>> barcodeToInfoMap;
-  final ScannedItemsModel scannedItemsModel;
   final String phoneNumber;
 
   const PaymentPage({
-    required this.scannedItems,
-    required this.barcodeToInfoMap,
-    required this.scannedItemsModel,
     required this.phoneNumber,
   });
 
@@ -122,8 +116,6 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<void> processPayment(BuildContext context) async {
-    await PdfGenerator.createPDF(widget.scannedItems, widget.barcodeToInfoMap,
-        widget.scannedItemsModel, widget.phoneNumber);
     File pdfFile =
         File('${Directory.systemTemp.path}/${widget.phoneNumber}.pdf');
     await uploadPDFToFirebase(pdfFile);

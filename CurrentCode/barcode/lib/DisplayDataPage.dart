@@ -1,7 +1,13 @@
 // main.dart
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, prefer_const_constructors, library_private_types_in_public_api, prefer_final_fields, avoid_print, deprecated_member_use
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, prefer_const_constructors, library_private_types_in_public_api, prefer_final_fields, avoid_print, deprecated_member_use, file_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'GlobalData.dart';
+import 'ScanBarcodePage.dart';
+import 'PaymentPage.dart';
 
 class DataStore {
   List<Map<String, dynamic>> dataList = [];
@@ -31,6 +37,72 @@ class DisplayPage extends StatefulWidget {
 class _DisplayPageState extends State<DisplayPage> {
   bool _isDeleting = false;
   List<int> _selectedIndices = [];
+  final DatabaseReference _databaseReference =
+      FirebaseDatabase.instance.reference();
+
+  CollectionReference _plistCollection =
+      FirebaseFirestore.instance.collection('PList');
+  void _showDataPage(List<Map<String, dynamic>> dataList) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            DisplayPage(dataList: dataList, dataStore: widget.dataStore),
+      ),
+    );
+  }
+
+  Future<void> updateTotalWeightInDatabase(double totalWeight) async {
+    try {
+      // Upload total weight to Firebase Realtime Database under the corresponding cartNumber
+      await _databaseReference
+          .child(
+              'cartNumbers/${GlobalData.cartNumber}/totalWeight') // Use cartNumber
+          .set(totalWeight);
+      print('Total Weight uploaded to the database: $totalWeight');
+    } catch (e) {
+      print('Failed to upload Total Weight to the database: $e');
+    }
+  }
+
+  Future<void> _showConfirmationDialog() async {
+    bool confirm = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm'),
+          content: Text('Do you want to end your shopping?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(true); // Return true when "Yes" is pressed.
+              },
+              child: Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(false); // Return false when "No" is pressed.
+              },
+              child: Text('No'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      // Proceed to the payment page here.
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentPage(
+            phoneNumber: GlobalData.phoneNumber,
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +117,7 @@ class _DisplayPageState extends State<DisplayPage> {
       double weight = widget.dataList[index]['Weight']?.toDouble() ?? 0.0;
       totalWeight += (weight * quantity);
     }
+    updateTotalWeightInDatabase(totalWeight);
 
     return Scaffold(
       appBar: AppBar(
@@ -68,6 +141,55 @@ class _DisplayPageState extends State<DisplayPage> {
                   _isDeleting = true;
                 }
               });
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.create), // Manually enter barcode icon
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return ManualBarcodeEntryDialog(dataStore: widget.dataStore);
+                },
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.qr_code_scanner),
+            onPressed: () async {
+              String barcode = await FlutterBarcodeScanner.scanBarcode(
+                '#FF0000',
+                'Cancel',
+                true,
+                ScanMode.BARCODE,
+              );
+              if (barcode.isNotEmpty) {
+                int existingIndex = widget.dataStore.dataList
+                    .indexWhere((data) => data['DocumentID'] == barcode);
+                if (existingIndex != -1) {
+                  widget.dataStore.updateQuantity(existingIndex, 1);
+                  _showDataPage(widget.dataStore.dataList);
+                } else {
+                  _plistCollection.doc(barcode).get().then((snapshot) {
+                    if (snapshot.exists) {
+                      Map<String, dynamic> data =
+                          snapshot.data() as Map<String, dynamic>;
+                      data['Quantity'] = 1;
+                      data['DocumentID'] = barcode;
+                      widget.dataStore.addData(data);
+                      _showDataPage(widget.dataStore.dataList);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Document not found'),
+                        ),
+                      );
+                    }
+                  }).catchError((error) {
+                    print('Error fetching document: $error');
+                  });
+                }
+              }
             },
           ),
         ],
@@ -103,34 +225,69 @@ class _DisplayPageState extends State<DisplayPage> {
             ),
           ),
           Container(
-            margin: EdgeInsets.symmetric(vertical: 2),
+            margin: EdgeInsets.symmetric(vertical: 2, horizontal: 8.0),
             padding: EdgeInsets.all(4.0),
             decoration: BoxDecoration(
               border: Border.all(),
               borderRadius: BorderRadius.circular(12.0),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
               children: [
-                Text(
-                  'Items: ${widget.dataList.length}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '  Items: ${widget.dataList.length}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    //Text(
+                    //   '(${totalWeight.toStringAsFixed(2)})',
+                    // style: TextStyle(
+                    //   fontSize: 10,
+                    //   ),
+                    // ),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment
+                            .end, // Center the button vertically
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              _showConfirmationDialog();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: Color(0xFFFF725E),
+                              onPrimary: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text('Proceed'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  '(${totalWeight.toStringAsFixed(2)})',
-                  style: TextStyle(
-                    fontSize: 10,
-                  ),
-                ),
-                Text(
-                  'Total Price: ₹${totalPrice.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                SizedBox(height: 2),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          '  Total Price: ₹${totalPrice.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),

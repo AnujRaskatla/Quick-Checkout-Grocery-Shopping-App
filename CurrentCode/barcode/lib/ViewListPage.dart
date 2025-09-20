@@ -280,9 +280,6 @@ class ViewListPageState extends State<ViewListPage>
                     context,
                     MaterialPageRoute(
                       builder: (context) => PaymentPage(
-                        scannedItems: scannedItems,
-                        barcodeToInfoMap: barcodeToInfoMap,
-                        scannedItemsModel: scannedItemsModel,
                         phoneNumber: GlobalData.phoneNumber,
                       ),
                     ),

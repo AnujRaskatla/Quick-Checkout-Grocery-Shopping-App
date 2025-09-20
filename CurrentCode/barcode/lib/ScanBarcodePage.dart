@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, prefer_const_constructors, use_build_context_synchronously, deprecated_member_use
+// ignore_for_file: file_names, prefer_const_constructors, use_build_context_synchronously, deprecated_member_use, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -15,7 +15,7 @@ class ScanBarcodePage extends StatefulWidget {
 }
 
 class _ScanBarcodePageState extends State<ScanBarcodePage> {
-  CollectionReference _plistCollection =
+  final CollectionReference _plistCollection =
       FirebaseFirestore.instance.collection('PList');
   void _showDataPage(List<Map<String, dynamic>> dataList) {
     Navigator.of(context).push(
@@ -156,7 +156,7 @@ class ManualBarcodeEntryDialog extends StatefulWidget {
 
 class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
   final TextEditingController _barcodeController = TextEditingController();
-  CollectionReference _plistCollection =
+  final CollectionReference _plistCollection =
       FirebaseFirestore.instance.collection('PList');
 
   void _showDataPage(List<Map<String, dynamic>> dataList) {

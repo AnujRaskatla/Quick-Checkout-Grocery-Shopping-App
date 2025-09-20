@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "weigh" "\0"
+            VALUE "FileDescription", "barcode" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "weigh" "\0"
+            VALUE "InternalName", "barcode" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "weigh.exe" "\0"
-            VALUE "ProductName", "weigh" "\0"
+            VALUE "OriginalFilename", "barcode.exe" "\0"
+            VALUE "ProductName", "barcode" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

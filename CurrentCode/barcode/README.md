@@ -1,4 +1,4 @@
-# weigh
+# barcode
 
 A new Flutter project.
 

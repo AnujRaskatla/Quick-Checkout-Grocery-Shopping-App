@@ -130,8 +130,12 @@ class ViewListPageState extends State<ViewListPage>
 
     barcodeToInfoMap = {};
     for (var row in csvTable) {
-      String barcode = row[0].toString();
-      List<String> info = [row[1].toString(), row[2].toString()];
+      String barcode = row[1].toString();
+      List<String> info = [
+        row[0].toString(),
+        row[2].toString(),
+        row[3].toString()
+      ];
       barcodeToInfoMap[barcode] = info;
     }
 
@@ -148,41 +152,57 @@ class ViewListPageState extends State<ViewListPage>
     final List<String> scannedItems = scannedItemsModel.scannedItems;
 
     return Scaffold(
-        body: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SingleChildScrollView(
-        child: DataTable(
-          columns: const <DataColumn>[
-            DataColumn(label: Text('S.no')),
-            DataColumn(label: Text('Name')),
-            DataColumn(label: Text('Barcode Number')),
-            DataColumn(label: Text('Price')),
-            DataColumn(label: Text('Weight')),
-          ],
-          rows: List<DataRow>.generate(
-            scannedItems.length,
-            (index) {
-              String scannedItem = scannedItems[index];
-              List<String> info =
-                  barcodeToInfoMap[scannedItem] ?? ['N/A', 'N/A'];
-
-              return DataRow(cells: <DataCell>[
-                DataCell(Text((index + 1).toString())),
-                DataCell(Text(info.length > 0
-                    ? info[0]
-                    : 'N/A')), // Assuming name is info[0]
-                DataCell(Text(scannedItem)),
-                DataCell(Text(info.length > 1
-                    ? info[1]
-                    : 'N/A')), // Assuming price is info[1]
-                DataCell(Text(info.length > 2
-                    ? info[2]
-                    : 'N/A')), // Assuming weight is info[2]
-              ]);
-            },
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text(
+            'Scanned Products',
+            style: TextStyle(color: Colors.black),
           ),
         ),
-      ),
-    ));
+        body: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SingleChildScrollView(
+            child: DataTable(
+              headingTextStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.blue,
+              ),
+              dataTextStyle:
+                  const TextStyle(fontSize: 14, color: Colors.black87),
+              horizontalMargin: 20, // Add margin to the horizontal sides
+              columnSpacing: 20.0,
+              columns: const <DataColumn>[
+                DataColumn(label: Text('S.no')),
+                DataColumn(label: Text('Name')),
+                DataColumn(label: Text('Barcode Number')),
+                DataColumn(label: Text('Price')),
+                DataColumn(label: Text('Weight')),
+              ],
+              rows: List<DataRow>.generate(
+                scannedItems.length,
+                (index) {
+                  String scannedItem = scannedItems[index];
+                  List<String> info =
+                      barcodeToInfoMap[scannedItem] ?? ['N/A', 'N/A', 'N/A'];
+
+                  return DataRow(cells: <DataCell>[
+                    DataCell(Text((index + 1).toString())),
+                    DataCell(Text(info.length > 0
+                        ? info[0]
+                        : 'N/A')), // Assuming name is info[0]
+                    DataCell(Text(scannedItem)),
+                    DataCell(Text(info.length > 1
+                        ? info[1]
+                        : 'N/A')), // Assuming price is info[1]
+                    DataCell(Text(info.length > 2
+                        ? info[2]
+                        : 'N/A')), // Assuming weight is info[2]
+                  ]);
+                },
+              ),
+            ),
+          ),
+        ));
   }
 }

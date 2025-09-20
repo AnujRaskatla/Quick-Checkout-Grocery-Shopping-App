@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, use_build_context_synchronously, deprecated_member_use, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_print
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, use_build_context_synchronously, deprecated_member_use, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_print, prefer_const_declarations
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -29,6 +29,18 @@ void main() async {
       messagingSenderId: '877289501258',
       projectId: 'mainweigh',
       databaseURL: 'https://mainweigh-default-rtdb.firebaseio.com',
+    ),
+  );
+
+  // Initialize the second Firebase project (replace with your second project config)
+  await Firebase.initializeApp(
+    name: 'third_project',
+    options: FirebaseOptions(
+      apiKey: 'AIzaSyCWgAin4gz1Xdj_yr2cdNdUhkVu2bnNKV8',
+      appId: '1:1072910885592:web:c8d332dcf9a92780fe2dad',
+      messagingSenderId: '1072910885592',
+      projectId: 'security-a5b42',
+      databaseURL: 'https://security-a5b42-default-rtdb.firebaseio.com',
     ),
   );
 
@@ -264,6 +276,8 @@ class _ResultPageState extends State<ResultPage> {
           resultColor = Colors.red;
         });
       }
+      // Send data to the third_project database
+      _sendDataToThirdProject(comparisonResult, difference);
     }
   }
 
@@ -280,6 +294,32 @@ class _ResultPageState extends State<ResultPage> {
           _compareValues();
         });
       }
+    });
+  }
+
+  void _sendDataToThirdProject(String comparisonResult, double difference) {
+    final thirdProjectReference = FirebaseDatabase(
+      app: Firebase.app('third_project'), // Use the third Firebase app
+    ).reference();
+
+    final cartNumber = widget.scannedValue;
+    final data = {
+      'CartNumber': cartNumber,
+      'TotalWeight': totalWeight,
+      'WeightValue': weightValue,
+      'ComparisonResult': comparisonResult,
+      'Difference': difference,
+    };
+
+    // Define the path where you want to store this data in the database
+    final dataPath =
+        'CounterDetails/Counter Number 2'; // Replace with your desired path
+
+    // Push the data to the database under the specified path
+    thirdProjectReference.child(dataPath).set(data).then((_) {
+      print('Data sent to third_project successfully');
+    }).catchError((error) {
+      print('Error sending data to third_project: $error');
     });
   }
 

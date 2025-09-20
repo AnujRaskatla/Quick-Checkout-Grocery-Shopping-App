@@ -141,8 +141,7 @@ class ViewListPageState extends State<ViewListPage>
   }
 
   Future<void> loadCsvData() async {
-    String csvData = await rootBundle
-        .loadString('assets/data.csv'); // Replace with your CSV file path
+    String csvData = await rootBundle.loadString('assets/data.csv');
     List<List<dynamic>> csvTable = const CsvToListConverter().convert(csvData);
 
     barcodeToInfoMap = {};
@@ -159,6 +158,68 @@ class ViewListPageState extends State<ViewListPage>
     setState(() {});
   }
 
+  DataRow _buildDataRow(
+      ScannedItemsModel scannedItemsModel, String scannedItem, int index) {
+    List<String> info = barcodeToInfoMap[scannedItem] ?? ['N/A', '0.0', '0.0'];
+    int quantity = scannedItemsModel.getQuantity(scannedItem);
+    double initialPrice = double.tryParse(info[1]) ?? 0.0;
+    double initialWeight = double.tryParse(info[2]) ?? 0.0;
+    double updatedPrice = initialPrice * quantity;
+    double updatedWeight = initialWeight * quantity;
+
+    return DataRow(cells: <DataCell>[
+      DataCell(Row(
+        children: [
+          IconButton(
+            onPressed: () {
+              scannedItemsModel.incrementQuantity(scannedItem);
+            },
+            icon: const Icon(Icons.add),
+          ),
+          Text(quantity.toString()),
+          IconButton(
+            onPressed: () {
+              scannedItemsModel.decrementQuantity(scannedItem);
+            },
+            icon: const Icon(Icons.remove),
+          ),
+        ],
+      )),
+      DataCell(Text((index + 1).toString())),
+      DataCell(Text(info.length > 0 ? info[0] : 'N/A')),
+      DataCell(Text(scannedItem)),
+      DataCell(Text(updatedPrice.toStringAsFixed(2))),
+      DataCell(Text(updatedWeight.toStringAsFixed(2))),
+    ]);
+  }
+
+  DataRow _buildTotalRow(ScannedItemsModel scannedItemsModel) {
+    double totalPrice = 0.0;
+    double totalWeight = 0.0;
+
+    for (String scannedItem in scannedItemsModel.scannedItems) {
+      List<String> info =
+          barcodeToInfoMap[scannedItem] ?? ['N/A', '0.0', '0.0'];
+      double price = double.tryParse(info[1]) ?? 0.0;
+      double weight = double.tryParse(info[2]) ?? 0.0;
+      int quantity = scannedItemsModel.getQuantity(scannedItem);
+
+      totalPrice += price * quantity;
+      totalWeight += weight * quantity;
+    }
+
+    return DataRow(
+      cells: <DataCell>[
+        const DataCell(Text('Total')),
+        const DataCell(Text('')),
+        const DataCell(Text('')),
+        const DataCell(Text('')),
+        DataCell(Text(totalPrice.toStringAsFixed(2))),
+        DataCell(Text(totalWeight.toStringAsFixed(2))),
+      ],
+    );
+  }
+
   @override
   bool get wantKeepAlive => true;
 
@@ -167,20 +228,6 @@ class ViewListPageState extends State<ViewListPage>
     super.build(context);
     final scannedItemsModel = Provider.of<ScannedItemsModel>(context);
     final List<String> scannedItems = scannedItemsModel.scannedItems;
-
-    double totalPrice = 0.0;
-    double totalWeight = 0.0;
-
-    for (String scannedItem in scannedItems) {
-      List<String> info =
-          barcodeToInfoMap[scannedItem] ?? ['N/A', 'N/A', 'N/A'];
-      if (info.length > 1) {
-        double price = double.tryParse(info[1]) ?? 0.0;
-        double weight = double.tryParse(info[2]) ?? 0.0;
-        totalPrice += price;
-        totalWeight += weight;
-      }
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -203,72 +250,22 @@ class ViewListPageState extends State<ViewListPage>
                 ),
                 dataTextStyle:
                     const TextStyle(fontSize: 14, color: Colors.black87),
-                horizontalMargin: 20, // Add margin to the horizontal sides
+                horizontalMargin: 20,
                 columnSpacing: 20.0,
                 columns: const <DataColumn>[
-                  DataColumn(label: Text('Qty.')), // Qty. column
+                  DataColumn(label: Text('Qty.')),
                   DataColumn(label: Text('S.no')),
                   DataColumn(label: Text('Name')),
                   DataColumn(label: Text('Barcode Number')),
                   DataColumn(label: Text('Price')),
                   DataColumn(label: Text('Weight')),
                 ],
-                rows: List<DataRow>.generate(
-                  scannedItems.length,
-                  (index) {
-                    String scannedItem = scannedItems[index];
-                    List<String> info =
-                        barcodeToInfoMap[scannedItem] ?? ['N/A', 'N/A', 'N/A'];
-                    int quantity = scannedItemsModel.getQuantity(scannedItem);
-// Get initial price and weight values from the info list
-                    double initialPrice =
-                        double.tryParse(info.length > 1 ? info[1] : '0.0') ??
-                            0.0;
-                    double initialWeight =
-                        double.tryParse(info.length > 2 ? info[2] : '0.0') ??
-                            0.0;
-
-                    // Calculate updated price and weight based on quantity
-                    double updatedPrice = initialPrice * quantity;
-                    double updatedWeight = initialWeight * quantity;
-
-                    return DataRow(cells: <DataCell>[
-                      DataCell(Row(
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              scannedItemsModel.incrementQuantity(scannedItem);
-                            },
-                            icon: const Icon(Icons.add),
-                          ),
-                          Text(quantity.toString()),
-                          IconButton(
-                            onPressed: () {
-                              scannedItemsModel.decrementQuantity(scannedItem);
-                            },
-                            icon: const Icon(Icons.remove),
-                          ),
-                        ],
-                      )),
-                      DataCell(Text((index + 1).toString())),
-                      DataCell(Text(info.length > 0 ? info[0] : 'N/A')),
-                      DataCell(Text(scannedItem)),
-                      DataCell(Text(updatedPrice
-                          .toStringAsFixed(2))), // Use updated price here
-                      DataCell(Text(updatedWeight
-                          .toStringAsFixed(2))), // Use updated weight here
-                    ]);
-                  },
-                )..add(
-                    DataRow(cells: <DataCell>[
-                      const DataCell(Text('Total')),
-                      const DataCell(Text('')),
-                      const DataCell(Text('')),
-                      const DataCell(Text('')),
-                      DataCell(Text(totalPrice.toStringAsFixed(2))),
-                      DataCell(Text(totalWeight.toStringAsFixed(2))),
-                    ]),
-                  ),
+                rows: [
+                  for (int index = 0; index < scannedItems.length; index++)
+                    _buildDataRow(
+                        scannedItemsModel, scannedItems[index], index),
+                  _buildTotalRow(scannedItemsModel),
+                ],
               ),
             ),
           ),
@@ -283,7 +280,7 @@ class ViewListPageState extends State<ViewListPage>
                   // Navigator.pushNamed(context, '/payment');
                 },
                 backgroundColor: Colors.blue,
-                child: const Icon(Icons.payment), // Customize the button color
+                child: const Icon(Icons.payment),
               ),
             ),
           )

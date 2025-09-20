@@ -5,16 +5,15 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 
 class ThankYouPage extends StatelessWidget {
-  final String pdfFileName;
   final String phoneNumber;
 
-  ThankYouPage({required this.pdfFileName, required this.phoneNumber});
+  ThankYouPage({required this.phoneNumber});
 
-  Future<void> copyPDFLinkToClipboard(String pdfFileName) async {
+  Future<void> copyPDFLinkToClipboard(String fileName) async {
     final storage = FirebaseStorage.instance;
 
     try {
-      final pdfRef = storage.ref().child(pdfFileName);
+      final pdfRef = storage.ref().child('invoices/$fileName');
       final pdfUrl = await pdfRef.getDownloadURL();
 
       String message = 'Here is the PDF file for payment: $pdfUrl';
@@ -24,7 +23,7 @@ class ThankYouPage extends StatelessWidget {
 
       print('PDF link copied to clipboard.');
     } catch (e) {
-      print('Error retrieving PDF download URL: $e');
+      print('Error retrieving PDF download URL:$phoneNumber $e');
     }
   }
 
@@ -59,7 +58,7 @@ class ThankYouPage extends StatelessWidget {
             SizedBox(height: 20),
             InkWell(
               onTap: () async {
-                await copyPDFLinkToClipboard('$phoneNumber.pdf');
+                await copyPDFLinkToClipboard('$phoneNumber-invoice.pdf');
               },
               child: RichText(
                 text: TextSpan(

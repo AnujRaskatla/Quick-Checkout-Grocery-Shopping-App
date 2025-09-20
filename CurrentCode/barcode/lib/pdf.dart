@@ -1,95 +1,84 @@
-import 'package:pdf/pdf.dart';
+// ignore_for_file: prefer_const_constructors, prefer_const_declarations, deprecated_member_use, avoid_print
+
 import 'package:pdf/widgets.dart' as pw;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:pdf/widgets.dart';
 
 class PDFGenerator {
   static Future<void> generatePDF(
       List<Map<String, dynamic>> dataList, String phoneNumber) async {
-    print('Generating PDF...');
     final pdf = pw.Document();
-    final headers = [
-      'Name',
-      'Price',
-      'Barcode',
-      'Weight',
-      'Quantity',
-      'Total Price'
-    ];
 
-    // Create a Page
+    // Define custom styles for the document
+    final TextStyle headerStyle = pw.TextStyle(fontWeight: pw.FontWeight.bold);
+    final TextStyle cellStyle = pw.TextStyle(fontSize: 10);
+    final double totalAmountFontSize = 12;
+
     pdf.addPage(
-      pw.Page(
+      pw.MultiPage(
         build: (pw.Context context) {
-          return pw.Column(
-            children: [
-              // Create a table with headers
-              pw.Table(
-                border: pw.TableBorder.all(
-                  color: PdfColors.black,
-                  width: 0.5, // Set the border width as needed
-                ),
-                children: [
-                  pw.TableRow(
-                    children: headers.map((header) {
-                      print('Adding header: $header');
-                      return pw.Text(header);
-                    }).toList(),
-                    decoration: pw.BoxDecoration(color: PdfColors.grey300),
+          return <pw.Widget>[
+            pw.Header(
+              child: pw.Text('Invoice:', style: pw.TextStyle(fontSize: 30)),
+              level: 0,
+            ),
+            pw.Padding(padding: pw.EdgeInsets.only(bottom: 10)),
+            pw.Table.fromTextArray(
+              headers: ['S.no', 'Description', 'Price', 'Qty.', 'Total'],
+              headerStyle: headerStyle,
+              data: <List<String>>[
+                for (var i = 0; i < dataList.length; i++)
+                  [
+                    (i + 1).toString(), // S.no
+                    dataList[i]['Name'].toString(),
+                    dataList[i]['Price'].toStringAsFixed(2),
+                    dataList[i]['Quantity'].toString(),
+                    (dataList[i]['Price'] * dataList[i]['Quantity'])
+                        .toStringAsFixed(2)
+                  ],
+              ],
+              cellStyle: cellStyle,
+            ),
+            pw.Padding(padding: pw.EdgeInsets.only(bottom: 10)),
+            pw.Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  '  Items: ${dataList.length.toString()}',
+                  style: TextStyle(
+                    fontSize: 12,
                   ),
-                  // Add rows of data
-                  for (var data in dataList)
-                    pw.TableRow(
-                      children: [
-                        pw.Text(data['Name'].toString()),
-                        pw.Text(data['Price']?.toStringAsFixed(2) ?? ''),
-                        pw.Text(data['Barcode_Number'].toString()),
-                        pw.Text(data['Weight']?.toStringAsFixed(2) ?? ''),
-                        pw.Text(data['Quantity']?.toString() ?? ''),
-                        pw.Text(
-                          (data['Price'] * (data['Quantity'] ?? 0))
-                              .toStringAsFixed(2),
-                        ),
-                      ],
-                    ),
-                ],
-              ),
-
-              // Create a bottom row with total price
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Text(
-                      'Total Price: ₹${calculateTotalPrice(dataList).toStringAsFixed(2)}'),
-                ],
-              ),
-            ],
-          );
+                ),
+                pw.Text(
+                  'Total Amount: ${calculateTotalPrice(dataList).toStringAsFixed(2)}/-',
+                  style: pw.TextStyle(fontSize: totalAmountFontSize),
+                ),
+              ],
+            ),
+          ];
         },
       ),
     );
 
     // Save the PDF to a file
-    print('Saving PDF to a file...');
     final output = await getTemporaryDirectory();
-    final fileName = '$phoneNumber.pdf'; // Use phone number as the filename
+    final fileName = '$phoneNumber-invoice.pdf';
     final file = File('${output.path}/$fileName');
     await file.writeAsBytes(await pdf.save());
-    print('PDF saved to file: ${file.path}');
 
     // Upload the PDF to Firebase Storage
     try {
-      print('Uploading PDF to Firebase Storage...');
       final Reference storageReference =
-          FirebaseStorage.instance.ref().child('pdfs/$fileName');
+          FirebaseStorage.instance.ref().child('invoices/$fileName');
       final UploadTask uploadTask = storageReference.putFile(file);
 
       await uploadTask.whenComplete(() {
-        print('PDF uploaded to Firebase Storage: $fileName');
+        print('Invoice PDF uploaded to Firebase Storage: $fileName');
       });
     } catch (e) {
-      print('Failed to upload PDF to Firebase Storage: $e');
+      print('Failed to upload Invoice PDF to Firebase Storage: $e');
     }
   }
 
@@ -100,7 +89,6 @@ class PDFGenerator {
       final quantity = data['Quantity'] ?? 0;
       totalPrice += price * quantity;
     }
-    print('Total Price calculated: $totalPrice');
     return totalPrice;
   }
 }

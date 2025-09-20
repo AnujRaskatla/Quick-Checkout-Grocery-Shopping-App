@@ -6,10 +6,9 @@ import 'thank_you_page.dart';
 import 'GlobalData.dart';
 
 class IntermediatePage extends StatefulWidget {
-  final String pdfFileName;
   final String phoneNumber;
 
-  IntermediatePage({required this.pdfFileName, required this.phoneNumber});
+  IntermediatePage({required this.phoneNumber});
 
   @override
   _IntermediatePageState createState() => _IntermediatePageState();
@@ -40,7 +39,6 @@ class _IntermediatePageState extends State<IntermediatePage> {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => ThankYouPage(
-                pdfFileName: widget.pdfFileName,
                 phoneNumber: widget.phoneNumber,
               ),
             ),
@@ -162,7 +160,6 @@ class _IntermediatePageState extends State<IntermediatePage> {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => ThankYouPage(
-                        pdfFileName: widget.pdfFileName,
                         phoneNumber: widget.phoneNumber,
                       ),
                     ),

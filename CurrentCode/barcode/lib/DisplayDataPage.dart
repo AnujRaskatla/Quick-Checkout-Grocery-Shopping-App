@@ -1,5 +1,5 @@
 // main.dart
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, prefer_const_constructors, library_private_types_in_public_api, prefer_final_fields, avoid_print, deprecated_member_use, file_names
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, prefer_const_constructors, library_private_types_in_public_api, prefer_final_fields, avoid_print, deprecated_member_use, file_names, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -36,6 +36,7 @@ class DisplayPage extends StatefulWidget {
 }
 
 class _DisplayPageState extends State<DisplayPage> {
+  double totalPrice = 0.0;
   bool _isDeleting = false;
   List<int> _selectedIndices = [];
   final DatabaseReference _databaseReference =
@@ -101,6 +102,7 @@ class _DisplayPageState extends State<DisplayPage> {
         MaterialPageRoute(
           builder: (context) => PaymentPage(
             phoneNumber: GlobalData.phoneNumber,
+            totalPrice: totalPrice,
           ),
         ),
       );

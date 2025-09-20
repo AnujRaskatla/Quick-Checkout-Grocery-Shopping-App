@@ -1,20 +1,13 @@
-// ignore_for_file: file_names, use_key_in_widget_constructors, avoid_print, deprecated_member_use, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, library_private_types_in_public_api
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print, file_names, use_key_in_widget_constructors, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/services.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart'; // Import Razorpay package
-import 'pdf_generator.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'IntermediatePage.dart';
 
 class PaymentPage extends StatefulWidget {
   final String phoneNumber;
-
-  const PaymentPage({
-    required this.phoneNumber,
-  });
+  final double totalPrice;
+  const PaymentPage({required this.phoneNumber, required this.totalPrice});
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
@@ -30,19 +23,21 @@ class _PaymentPageState extends State<PaymentPage> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+
+    // Initiate Razorpay payment when the page loads
+    initiateRazorpayPayment(context);
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     // Payment was successful
     // You can implement your logic here, e.g., navigate to a success page
     print('Payment Successful: ${response.paymentId}');
-    String pdfFileName = '${widget.phoneNumber}.pdf';
+
     // Navigate to IntermediatePage after successful payment and PDF upload
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => IntermediatePage(
-          pdfFileName: pdfFileName,
           phoneNumber: widget.phoneNumber,
         ),
       ),
@@ -58,69 +53,6 @@ class _PaymentPageState extends State<PaymentPage> {
   void _handleExternalWallet(ExternalWalletResponse response) {
     // Handle external wallet payments (e.g., Paytm, Google Pay)
     print('External Wallet Payment: ${response.walletName}');
-  }
-
-  Future<void> uploadPDFToFirebase(File pdfFile) async {
-    try {
-      if (pdfFile.existsSync()) {
-        final storage = FirebaseStorage.instance;
-        final storageRef = storage.ref().child('${widget.phoneNumber}.pdf');
-        await storageRef.putFile(pdfFile);
-        print('PDF file uploaded to Firebase Storage.');
-      } else {
-        print('PDF file does not exist at ${pdfFile.path}.');
-      }
-    } catch (e) {
-      print('Error uploading PDF file to Firebase Storage: $e');
-    }
-  }
-
-  Future<void> sendPDFViaWhatsApp(String pdfFileName) async {
-    final storage = FirebaseStorage.instance;
-
-    try {
-      final pdfRef = storage.ref().child(pdfFileName);
-      final pdfUrl = await pdfRef.getDownloadURL();
-
-      String message = 'Here is the PDF file for payment: $pdfUrl';
-      String whatsappUrl =
-          "https://wa.me/${widget.phoneNumber}?text=${Uri.encodeComponent(message)}}";
-
-      if (await canLaunch(whatsappUrl)) {
-        await launch(whatsappUrl);
-      } else {
-        print('Could not launch WhatsApp.');
-      }
-    } catch (e) {
-      print('Error retrieving PDF download URL: $e');
-    }
-  }
-
-  Future<void> copyPDFLinkToClipboard(String pdfFileName) async {
-    final storage = FirebaseStorage.instance;
-
-    try {
-      final pdfRef = storage.ref().child(pdfFileName);
-      final pdfUrl = await pdfRef.getDownloadURL();
-
-      String message = 'Here is the PDF file for payment: $pdfUrl';
-
-      final ClipboardData data = ClipboardData(text: message);
-      await Clipboard.setData(data);
-
-      print('PDF link copied to clipboard.');
-    } catch (e) {
-      print('Error retrieving PDF download URL: $e');
-    }
-  }
-
-  Future<void> processPayment(BuildContext context) async {
-    File pdfFile =
-        File('${Directory.systemTemp.path}/${widget.phoneNumber}.pdf');
-    await uploadPDFToFirebase(pdfFile);
-
-    // Call the method to initiate the Razorpay payment
-    await initiateRazorpayPayment(context);
   }
 
   Future<void> initiateRazorpayPayment(BuildContext context) async {
@@ -146,40 +78,6 @@ class _PaymentPageState extends State<PaymentPage> {
     }
   }
 
-  Widget buildPaymentButton(
-      String label, Color color, IconData icon, VoidCallback onPressed) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          primary: color,
-          padding: const EdgeInsets.all(16.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-        ),
-        onPressed: onPressed,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: Colors.black,
-            ),
-            SizedBox(width: 8.0),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -199,7 +97,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                   SizedBox(height: 16.0),
                   Text(
-                    'Select a Payment Option',
+                    'Processing Payment...',
                     style: TextStyle(
                       fontSize: 24.0,
                       color: Colors.black,
@@ -208,21 +106,6 @@ class _PaymentPageState extends State<PaymentPage> {
                 ],
               ),
             ),
-            SizedBox(height: 16.0),
-            buildPaymentButton('UPI', Colors.grey[300]!, Icons.payment,
-                () async {
-              await processPayment(context);
-            }),
-            SizedBox(height: 16),
-            buildPaymentButton('Debit Card', Colors.grey[300]!, Icons.payment,
-                () async {
-              await processPayment(context);
-            }),
-            SizedBox(height: 16),
-            buildPaymentButton('Net Banking', Colors.grey[300]!, Icons.payment,
-                () async {
-              await processPayment(context);
-            }),
           ],
         ),
       ),

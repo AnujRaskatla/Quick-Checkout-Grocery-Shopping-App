@@ -5,9 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'ScannedItemsModel.dart';
 import 'ScanBarcodePage.dart';
-import 'ViewListPage.dart';
+
 import 'CartNumberPage.dart';
-import 'GlobalData.dart';
 import 'PhoneEntryPage.dart';
 import 'DisplayDataPage.dart';
 
@@ -28,10 +27,6 @@ void main() async {
           '/cartnumber': (context) => CartNumberPage(), // CartNumberPage route.
           '/scan': (context) => ScanBarcodePage(
                 dataStore: DataStore(),
-              ),
-          '/list': (context) => ViewListPage(
-                scannedItemsModel: Provider.of<ScannedItemsModel>(context),
-                phoneNumber: GlobalData.phoneNumber,
               ),
         },
       ),

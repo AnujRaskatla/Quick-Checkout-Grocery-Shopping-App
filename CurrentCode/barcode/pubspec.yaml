@@ -88,6 +88,9 @@ flutter:
    - assets/ac.jpg
    - assets/bs.jpg
    - assets/g.jpg
+   - assets/lg.png
+    
+    
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

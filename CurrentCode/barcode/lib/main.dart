@@ -9,6 +9,8 @@ import 'package:excel/excel.dart';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pdfWidgets;
 
 class LoginPage extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
@@ -385,7 +387,35 @@ class ViewListPageState extends State<ViewListPage>
     );
   }
 
-  Future<void> createXLSXFile(List<String> scannedItems,
+  Future<pdfWidgets.Document> createPdfDocument(String xlsxPath) async {
+    final excel = Excel.decodeBytes(File(xlsxPath).readAsBytesSync());
+    final pdf = pdfWidgets.Document();
+
+    pdf.addPage(
+      pdfWidgets.MultiPage(
+        build: (context) {
+          final rows = excel.tables[excel.tables.keys.first]!;
+          return [
+            pdfWidgets.Table.fromTextArray(
+              data: [
+                ['Qty', 'S.no', 'Name', 'Barcode Number', 'Price', 'Weight'],
+                for (var row in rows.rows) ...[row],
+              ],
+              cellStyle:
+                  pdfWidgets.TextStyle(fontWeight: pdfWidgets.FontWeight.bold),
+              defaultColumnWidth: pdfWidgets.IntrinsicColumnWidth(flex: 1.0),
+              border: pdfWidgets.TableBorder.all(),
+              headerCount: 1,
+            ),
+          ];
+        },
+      ),
+    );
+
+    return pdf;
+  }
+
+  Future<void> createXLSXAndPDF(List<String> scannedItems,
       Map<String, List<String>> barcodeToInfoMap) async {
     final excel = Excel.createExcel();
     final sheet = excel['Sheet1'];
@@ -415,13 +445,20 @@ class ViewListPageState extends State<ViewListPage>
       ]);
     }
 
-    final file = File('${Directory.systemTemp.path}/scanned_items.xlsx');
-    final excelData =
-        excel.encode(); // Use final variable to store the encoded data
+    final xlsxFile = File('${Directory.systemTemp.path}/scanned_items.xlsx');
+    final excelData = excel.encode();
     if (excelData != null) {
-      await file.writeAsBytes(excelData);
+      await xlsxFile.writeAsBytes(excelData);
 
-      print('XLSX file saved at: ${file.path}');
+      print('XLSX file saved at: ${xlsxFile.path}');
+
+      // Convert XLSX to PDF
+      final pdfFile = File('${Directory.systemTemp.path}/scanned_items.pdf');
+      final pdfDocument = await createPdfDocument(xlsxFile.path);
+      final pdfData = await pdfDocument.save();
+      await pdfFile.writeAsBytes(pdfData);
+
+      print('PDF file saved at: ${pdfFile.path}');
     } else {
       print('Failed to create XLSX data.');
     }
@@ -492,7 +529,7 @@ class ViewListPageState extends State<ViewListPage>
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 onPressed: () async {
-                  await createXLSXFile(scannedItems, barcodeToInfoMap);
+                  await createXLSXAndPDF(scannedItems, barcodeToInfoMap);
 
                   Navigator.push(
                     context,
@@ -658,6 +695,22 @@ class PaymentPage extends StatelessWidget {
     }
   }
 
+  Future<void> uploadPDFToFirebase(File pdfFile) async {
+    try {
+      if (pdfFile.existsSync()) {
+        final storage = FirebaseStorage.instance;
+        final storageRef = storage.ref().child('scanned_items.pdf');
+        await storageRef.putFile(pdfFile);
+
+        print('PDF file uploaded to Firebase Storage.');
+      } else {
+        print('PDF file does not exist at ${pdfFile.path}.');
+      }
+    } catch (e) {
+      print('Error uploading PDF file to Firebase Storage: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -686,6 +739,10 @@ class PaymentPage extends StatelessWidget {
                   File xlsxFile =
                       File('${Directory.systemTemp.path}/scanned_items.xlsx');
                   await uploadXLSXToFirebase(xlsxFile);
+
+                  File pdfFile =
+                      File('${Directory.systemTemp.path}/scanned_items.pdf');
+                  await uploadPDFToFirebase(pdfFile);
                   // Implement GPay payment logic here
                 },
                 child: const Row(

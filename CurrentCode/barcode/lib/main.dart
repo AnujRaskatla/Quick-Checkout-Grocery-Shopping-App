@@ -166,59 +166,76 @@ class ViewListPageState extends State<ViewListPage>
     }
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text(
-          'Scanned Products',
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SingleChildScrollView(
-          child: DataTable(
-            headingTextStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.blue,
-            ),
-            dataTextStyle: const TextStyle(fontSize: 14, color: Colors.black87),
-            horizontalMargin: 20, // Add margin to the horizontal sides
-            columnSpacing: 20.0,
-            columns: const <DataColumn>[
-              DataColumn(label: Text('S.no')),
-              DataColumn(label: Text('Name')),
-              DataColumn(label: Text('Barcode Number')),
-              DataColumn(label: Text('Price')),
-              DataColumn(label: Text('Weight')),
-            ],
-            rows: List<DataRow>.generate(
-              scannedItems.length,
-              (index) {
-                String scannedItem = scannedItems[index];
-                List<String> info =
-                    barcodeToInfoMap[scannedItem] ?? ['N/A', 'N/A', 'N/A'];
-
-                return DataRow(cells: <DataCell>[
-                  DataCell(Text((index + 1).toString())),
-                  DataCell(Text(info.length > 0 ? info[0] : 'N/A')),
-                  DataCell(Text(scannedItem)),
-                  DataCell(Text(info.length > 1 ? info[1] : 'N/A')),
-                  DataCell(Text(info.length > 2 ? info[2] : 'N/A')),
-                ]);
-              },
-            )..add(
-                DataRow(cells: <DataCell>[
-                  const DataCell(Text('Total')),
-                  const DataCell(Text('')),
-                  const DataCell(Text('')),
-                  DataCell(Text(totalPrice.toStringAsFixed(2))),
-                  DataCell(Text(totalWeight.toStringAsFixed(2))),
-                ]),
-              ),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text(
+            'Scanned Products',
+            style: TextStyle(color: Colors.black),
           ),
         ),
-      ),
-    );
+        body: Column(children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SingleChildScrollView(
+              child: DataTable(
+                headingTextStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.blue,
+                ),
+                dataTextStyle:
+                    const TextStyle(fontSize: 14, color: Colors.black87),
+                horizontalMargin: 20, // Add margin to the horizontal sides
+                columnSpacing: 20.0,
+                columns: const <DataColumn>[
+                  DataColumn(label: Text('S.no')),
+                  DataColumn(label: Text('Name')),
+                  DataColumn(label: Text('Barcode Number')),
+                  DataColumn(label: Text('Price')),
+                  DataColumn(label: Text('Weight')),
+                ],
+                rows: List<DataRow>.generate(
+                  scannedItems.length,
+                  (index) {
+                    String scannedItem = scannedItems[index];
+                    List<String> info =
+                        barcodeToInfoMap[scannedItem] ?? ['N/A', 'N/A', 'N/A'];
+
+                    return DataRow(cells: <DataCell>[
+                      DataCell(Text((index + 1).toString())),
+                      DataCell(Text(info.length > 0 ? info[0] : 'N/A')),
+                      DataCell(Text(scannedItem)),
+                      DataCell(Text(info.length > 1 ? info[1] : 'N/A')),
+                      DataCell(Text(info.length > 2 ? info[2] : 'N/A')),
+                    ]);
+                  },
+                )..add(
+                    DataRow(cells: <DataCell>[
+                      const DataCell(Text('Total')),
+                      const DataCell(Text('')),
+                      const DataCell(Text('')),
+                      DataCell(Text(totalPrice.toStringAsFixed(2))),
+                      DataCell(Text(totalWeight.toStringAsFixed(2))),
+                    ]),
+                  ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: FloatingActionButton(
+                onPressed: () {
+                  // Add your payment logic here
+                  // For example, you could navigate to a payment screen.
+                  // Navigator.pushNamed(context, '/payment');
+                },
+                backgroundColor: Colors.blue,
+                child: const Icon(Icons.payment), // Customize the button color
+              ),
+            ),
+          )
+        ]));
   }
 }

@@ -1,4 +1,4 @@
-package com.example.weigh
+package com.example.barcode
 
 import io.flutter.embedding.android.FlutterActivity
 

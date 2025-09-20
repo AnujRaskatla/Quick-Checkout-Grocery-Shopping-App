@@ -43,8 +43,11 @@ class ScanBarcodePage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              DisplayDataPage(barcode: barcode),
+                          builder: (context) => SearchScreen(
+                            dataStore:
+                                DataStore(), // Pass your DataStore instance here.
+                            initialBarcode: barcode,
+                          ),
                         ),
                       );
                     }
@@ -161,8 +164,11 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              DisplayDataPage(barcode: enteredBarcode),
+                          builder: (context) => SearchScreen(
+                            dataStore:
+                                DataStore(), // Pass your DataStore instance here.
+                            initialBarcode: enteredBarcode,
+                          ),
                         ),
                       );
                     }

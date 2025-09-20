@@ -154,6 +154,8 @@ class _ResultPageState extends State<ResultPage> {
   late DatabaseReference secondProjectReference;
   double? totalWeight;
   double? weightValue;
+  String comparisonResult = ''; // To store the comparison result text
+  Color resultColor = Colors.black; // To store the text color
 
   @override
   void initState() {
@@ -182,14 +184,25 @@ class _ResultPageState extends State<ResultPage> {
       final dataSnapshot = event.snapshot;
       if (dataSnapshot.value != null) {
         final data = dataSnapshot.value as Map<dynamic, dynamic>;
-        if (data.containsKey('totalWeight')) {
+        final totalWeightValue = data['totalWeight'];
+        if (totalWeightValue is double || totalWeightValue is int) {
           setState(() {
-            totalWeight = data['totalWeight'] as double;
+            totalWeight = totalWeightValue.toDouble();
+            // Compare the values and set the comparison result
+            _compareValues();
+          });
+        } else {
+          setState(() {
+            totalWeight = null;
+            // Compare the values and set the comparison result
+            _compareValues();
           });
         }
       } else {
         setState(() {
           totalWeight = null;
+          // Compare the values and set the comparison result
+          _compareValues();
         });
       }
     } catch (error) {
@@ -198,8 +211,8 @@ class _ResultPageState extends State<ResultPage> {
   }
 
   Future<void> _fetchWeight() async {
-    final weightReference = firstProjectReference
-        .child('Counter Number 2/Weight'); // Replace with the correct path
+    final weightReference =
+        firstProjectReference.child('Counter Number 2/Weight');
 
     try {
       final weightEvent = await weightReference.once();
@@ -207,10 +220,30 @@ class _ResultPageState extends State<ResultPage> {
       if (weightDataSnapshot.value != null) {
         setState(() {
           weightValue = weightDataSnapshot.value as double;
+          // Compare the values and set the comparison result
+          _compareValues();
         });
       }
     } catch (error) {
       print('Error fetching "Weight" data from the first project: $error');
+    }
+  }
+
+  // Compare the values and set the comparison result
+  void _compareValues() {
+    if (totalWeight != null && weightValue != null) {
+      final difference = (totalWeight! - weightValue!).abs();
+      if (difference <= 1) {
+        setState(() {
+          comparisonResult = 'Weights Matched';
+          resultColor = Colors.green;
+        });
+      } else {
+        setState(() {
+          comparisonResult = 'Weights not Matched';
+          resultColor = Colors.red;
+        });
+      }
     }
   }
 
@@ -236,6 +269,12 @@ class _ResultPageState extends State<ResultPage> {
             // Display "Weight" if available
             if (weightValue != null)
               Text('Weight: $weightValue', style: TextStyle(fontSize: 18)),
+
+            // Display the comparison result with the specified text color
+            Text(
+              comparisonResult,
+              style: TextStyle(fontSize: 18, color: resultColor),
+            ),
           ],
         ),
       ),

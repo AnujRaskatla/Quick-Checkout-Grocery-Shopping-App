@@ -101,24 +101,91 @@ class ScanBarcodePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            String barcode = await FlutterBarcodeScanner.scanBarcode(
-              '#FF0000',
-              'Cancel',
-              true,
-              ScanMode.BARCODE,
-            );
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: const Text(
+            'Select an Option:║▌║█║▌║▌║▌█ ',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  String barcode = await FlutterBarcodeScanner.scanBarcode(
+                    '#FF0000',
+                    'Cancel',
+                    true,
+                    ScanMode.BARCODE,
+                  );
 
-            if (barcode.isNotEmpty) {
+                  if (barcode.isNotEmpty) {
+                    Provider.of<ScannedItemsModel>(context, listen: false)
+                        .addScannedItem(barcode);
+                  }
+                },
+                child: const Text('Start Barcode Scan'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return const ManualBarcodeEntryDialog();
+                    },
+                  );
+
+                  Navigator.pushNamed(context, '/list');
+                },
+                child: const Text('Enter Barcode Manually'),
+              ),
+            ],
+          ),
+        ));
+  }
+}
+
+class ManualBarcodeEntryDialog extends StatefulWidget {
+  const ManualBarcodeEntryDialog({super.key});
+
+  @override
+  ManualBarcodeEntryDialogState createState() =>
+      ManualBarcodeEntryDialogState();
+}
+
+class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
+  final TextEditingController _barcodeController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Enter Barcode Manually'),
+      content: TextField(
+        controller: _barcodeController,
+        decoration: const InputDecoration(labelText: 'Barcode'),
+      ),
+      actions: <Widget>[
+        ElevatedButton(
+          onPressed: () {
+            String enteredBarcode = _barcodeController.text;
+            if (enteredBarcode.isNotEmpty) {
               Provider.of<ScannedItemsModel>(context, listen: false)
-                  .addScannedItem(barcode);
+                  .addScannedItem(enteredBarcode);
+              Navigator.pop(context);
             }
           },
-          child: const Text('Start Barcode Scan'),
+          child: const Text('Add'),
         ),
-      ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('Cancel'),
+        ),
+      ],
     );
   }
 }
@@ -239,10 +306,10 @@ class ViewListPageState extends State<ViewListPage>
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         title: const Text(
           'Scanned Products',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.white),
         ),
       ),
       body: Column(

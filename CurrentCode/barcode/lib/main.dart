@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, avoid_print, prefer_is_empty, prefer_const_constructors
+// ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +9,8 @@ import 'ScanBarcodePage.dart';
 import 'ViewListPage.dart';
 import 'CartNumberPage.dart';
 import 'GlobalData.dart';
+import 'PhoneEntryPage.dart';
+import 'NameInputPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,31 +18,25 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => ScannedItemsModel(),
-      child: const MyApp(),
+      child: MaterialApp(
+        title: 'Barcode App',
+        theme: ThemeData(
+          primarySwatch: Colors.grey,
+        ),
+        initialRoute: '/signup', // Start with the SignupPage.
+        routes: {
+          '/signup': (context) => PhoneEntryPage(), // SignupPage route.
+          '/cartnumber': (context) => CartNumberPage(), // CartNumberPage route.
+          '/login': (context) => LoginPage(), // LoginPage route.
+          '/scan': (context) => ScanBarcodePage(),
+          '/list': (context) => ViewListPage(
+                scannedItemsModel: Provider.of<ScannedItemsModel>(context),
+                phoneNumber: GlobalData.phoneNumber,
+              ),
+          '/name': (context) =>
+              NameInputPage(), // Define the '/name' route here.
+        },
+      ),
     ),
   );
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Barcode App',
-      theme: ThemeData(
-        primarySwatch: Colors.grey,
-      ),
-      initialRoute: '/cartnumber', // Start with the CartNumberPage.
-      routes: {
-        '/cartnumber': (context) => CartNumberPage(), // CartNumberPage route.
-        '/login': (context) => LoginPage(), // LoginPage route.
-        '/scan': (context) => ScanBarcodePage(),
-        '/list': (context) => ViewListPage(
-              scannedItemsModel: Provider.of<ScannedItemsModel>(context),
-              phoneNumber: GlobalData.phoneNumber,
-            ),
-      },
-    );
-  }
 }

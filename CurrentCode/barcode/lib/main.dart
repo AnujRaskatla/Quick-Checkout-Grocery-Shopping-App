@@ -1,27 +1,53 @@
 // main.dart
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, prefer_const_constructors, library_private_types_in_public_api, prefer_final_fields, avoid_print, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+class DataStore {
+  List<Map<String, dynamic>> dataList = [];
+
+  void addData(Map<String, dynamic> data) {
+    dataList.add(data);
+  }
+
+  void updateQuantity(int index, int value) {
+    dataList[index]['Quantity'] += value;
+    if (dataList[index]['Quantity'] < 1) {
+      dataList[index]['Quantity'] = 1;
+    }
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  final dataStore = DataStore();
+  runApp(MyApp(dataStore: dataStore));
 }
 
 class MyApp extends StatelessWidget {
+  final DataStore dataStore;
+
+  MyApp({required this.dataStore});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: Text('Firestore Search App')),
-        body: SearchScreen(),
+        body: SearchScreen(dataStore: dataStore),
       ),
     );
   }
 }
 
 class SearchScreen extends StatefulWidget {
+  final DataStore dataStore;
+
+  SearchScreen({required this.dataStore});
+
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
@@ -31,12 +57,12 @@ class _SearchScreenState extends State<SearchScreen> {
   String _searchedDocId = '';
   CollectionReference _plistCollection =
       FirebaseFirestore.instance.collection('PList');
-  List<Map<String, dynamic>> _searchResults = [];
 
-  void _showDataPage() {
+  void _showDataPage(List<Map<String, dynamic>> dataList) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => DisplayDataPage(dataList: _searchResults),
+        builder: (context) =>
+            DisplayDataPage(dataList: dataList, dataStore: widget.dataStore),
       ),
     );
   }
@@ -63,8 +89,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     Map<String, dynamic> data =
                         snapshot.data() as Map<String, dynamic>;
                     data['Quantity'] = 1; // Initial quantity
-                    _searchResults.add(data); // Add the data to the list
-                    _showDataPage();
+                    widget.dataStore.addData(data); // Add the data to DataStore
+                    _showDataPage(widget.dataStore.dataList);
                   } else {
                     // Document not found
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -90,8 +116,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
 class DisplayDataPage extends StatefulWidget {
   final List<Map<String, dynamic>> dataList;
+  final DataStore dataStore;
 
-  DisplayDataPage({required this.dataList});
+  DisplayDataPage({required this.dataList, required this.dataStore});
 
   @override
   _DisplayDataPageState createState() => _DisplayDataPageState();
@@ -108,6 +135,7 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
       int quantity = widget.dataList[index]['Quantity'] ?? 0;
       totalPrice += (price * quantity);
     }
+
     return Scaffold(
       appBar: AppBar(title: Text('Display Data')),
       body: Column(
@@ -118,6 +146,8 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
                 for (int index = 0; index < widget.dataList.length; index++)
                   DataRow(
                     data: widget.dataList[index],
+                    index: index,
+                    dataStore: widget.dataStore,
                     onUpdate: () {
                       setState(() {});
                     },
@@ -161,9 +191,15 @@ class _DisplayDataPageState extends State<DisplayDataPage> {
 
 class DataRow extends StatefulWidget {
   final Map<String, dynamic> data;
+  final int index;
   final Function onUpdate;
+  final DataStore dataStore;
 
-  DataRow({required this.data, required this.onUpdate});
+  DataRow(
+      {required this.data,
+      required this.index,
+      required this.onUpdate,
+      required this.dataStore});
 
   @override
   _DataRowState createState() => _DataRowState();
@@ -172,11 +208,18 @@ class DataRow extends StatefulWidget {
 class _DataRowState extends State<DataRow> {
   int _quantity = 1;
 
+  @override
+  void initState() {
+    _quantity = widget.data['Quantity'];
+    super.initState();
+  }
+
   void _updateQuantity(int value) {
     setState(() {
       _quantity += value;
       _quantity = _quantity.clamp(1, 999); // Limit quantity between 1 and 999
     });
+    widget.dataStore.updateQuantity(widget.index, value);
     widget.onUpdate();
   }
 

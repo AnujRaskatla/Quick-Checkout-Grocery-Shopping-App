@@ -5,17 +5,22 @@ import 'package:provider/provider.dart';
 import 'package:csv/csv.dart';
 import 'package:http/http.dart' as http;
 import 'package:excel/excel.dart';
+// ignore: unused_import
+import 'package:weigh/main.dart';
 import 'dart:io';
-import 'received_weight_page.dart';
+import 'LoginPage.dart';
 import 'pdf_generator.dart';
 import 'ScannedItemsModel.dart';
 import 'PaymentPage.dart';
 
 class ViewListPage extends StatefulWidget {
   final ScannedItemsModel scannedItemsModel; // Add this line
-
-  const ViewListPage({Key? key, required this.scannedItemsModel})
-      : super(key: key);
+  final String phoneNumber;
+  const ViewListPage({
+    Key? key,
+    required this.scannedItemsModel,
+    required this.phoneNumber,
+  }) : super(key: key);
 
   @override
   ViewListPageState createState() => ViewListPageState();
@@ -288,7 +293,10 @@ class ViewListPageState extends State<ViewListPage>
                     onPressed: () async {
                       await createXLSXFile(scannedItems, barcodeToInfoMap);
                       await PdfGenerator.createPDF(
-                          scannedItems, barcodeToInfoMap, scannedItemsModel);
+                          scannedItems,
+                          barcodeToInfoMap,
+                          scannedItemsModel,
+                          GlobalData.phoneNumber);
 
                       Navigator.push(
                         context,
@@ -297,6 +305,7 @@ class ViewListPageState extends State<ViewListPage>
                             scannedItems: scannedItems,
                             barcodeToInfoMap: barcodeToInfoMap,
                             scannedItemsModel: scannedItemsModel,
+                            phoneNumber: GlobalData.phoneNumber,
                           ),
                         ),
                       );

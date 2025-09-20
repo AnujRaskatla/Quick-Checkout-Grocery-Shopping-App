@@ -1,12 +1,27 @@
-// ignore_for_file: file_names
+// ignore_for_file: prefer_const_constructors, file_names, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
 import 'WelcomePage.dart';
 
-class LoginPage extends StatelessWidget {
-  final TextEditingController _nameController = TextEditingController();
+class GlobalData {
+  static String userName = '';
+  static String phoneNumber = '';
+}
 
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  @override
+  LoginPageState createState() => LoginPageState();
+}
+
+class LoginPageState extends State<LoginPage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+
+  @override
+  void dispose() {
+    _phoneNumberController.dispose(); // Dispose of the controller
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +32,7 @@ class LoginPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'Hello',
               style: TextStyle(
                 fontSize: 36,
@@ -25,28 +40,36 @@ class LoginPage extends StatelessWidget {
                 color: Colors.black,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Enter your Name'),
+              decoration: InputDecoration(labelText: 'Enter your Name'),
             ),
-            const SizedBox(height: 10),
-            const TextField(
+            SizedBox(height: 10),
+            TextField(
+              controller: _phoneNumberController,
               decoration: InputDecoration(labelText: 'Enter your Phone Number'),
               keyboardType: TextInputType.phone,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 String enteredName = _nameController.text;
+                String enteredPhoneNumber = _phoneNumberController.text;
+
+                // Assign the entered values to the global variables
+                GlobalData.userName = enteredName;
+                GlobalData.phoneNumber = enteredPhoneNumber;
+
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WelcomePage(userName: enteredName),
+                    builder: (context) => WelcomePage(
+                        userName: enteredName, phoneNumber: enteredPhoneNumber),
                   ),
                 );
               },
-              child: const Text('Submit'),
+              child: Text('Submit'),
             ),
           ],
         ),

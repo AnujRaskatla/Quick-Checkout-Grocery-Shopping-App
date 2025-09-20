@@ -9,6 +9,7 @@ class PdfGenerator {
     List<String> scannedItems,
     Map<String, List<String>> barcodeToInfoMap,
     ScannedItemsModel scannedItemsModel, // Pass the model as a parameter
+    String phoneNumber, // Add phone number as a parameter
   ) async {
     final pdf = pw.Document();
 
@@ -61,8 +62,8 @@ class PdfGenerator {
       ),
     );
 
-    // Save the PDF to a file
-    final file = File('${Directory.systemTemp.path}/scanned_items.pdf');
+    // Save the PDF to a file with the phone number as the name
+    final file = File('${Directory.systemTemp.path}/$phoneNumber.pdf');
     await file.writeAsBytes(await pdf.save());
     print('PDF file saved at: ${file.path}');
   }

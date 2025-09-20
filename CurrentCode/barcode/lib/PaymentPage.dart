@@ -1,19 +1,23 @@
-// ignore_for_file: avoid_print, file_names, use_key_in_widget_constructors
+// ignore_for_file: avoid_print, file_names, use_key_in_widget_constructors, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'pdf_generator.dart';
 import 'ScannedItemsModel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PaymentPage extends StatelessWidget {
   final List<String> scannedItems;
   final Map<String, List<String>> barcodeToInfoMap;
   final ScannedItemsModel scannedItemsModel;
+  final String phoneNumber;
+
   const PaymentPage({
     required this.scannedItems,
     required this.barcodeToInfoMap,
     required this.scannedItemsModel,
+    required this.phoneNumber,
   });
 
   Future<void> uploadXLSXToFirebase(File file) async {
@@ -35,7 +39,7 @@ class PaymentPage extends StatelessWidget {
     try {
       if (pdfFile.existsSync()) {
         final storage = FirebaseStorage.instance;
-        final storageRef = storage.ref().child('scanned_items.pdf');
+        final storageRef = storage.ref().child('$phoneNumber.pdf');
         await storageRef.putFile(pdfFile);
         print('PDF file uploaded to Firebase Storage.');
       } else {
@@ -43,6 +47,26 @@ class PaymentPage extends StatelessWidget {
       }
     } catch (e) {
       print('Error uploading PDF file to Firebase Storage: $e');
+    }
+  }
+
+  Future<void> sendWhatsAppMessage() async {
+    try {
+      final storage = FirebaseStorage.instance;
+      final pdfStorageRef = storage.ref().child('scanned_items.pdf');
+      final pdfDownloadUrl = await pdfStorageRef.getDownloadURL();
+
+      final whatsappMessage = 'Here is the PDF: $pdfDownloadUrl';
+
+      final whatsappUrl =
+          'https://api.whatsapp.com/send?phone=$phoneNumber&text=${Uri.encodeFull(whatsappMessage)}';
+      if (await canLaunch(whatsappUrl)) {
+        await launch(whatsappUrl);
+      } else {
+        print('Could not launch WhatsApp.');
+      }
+    } catch (e) {
+      print('Error sending WhatsApp message: $e');
     }
   }
 
@@ -74,11 +98,12 @@ class PaymentPage extends StatelessWidget {
                   File xlsxFile =
                       File('${Directory.systemTemp.path}/scanned_items.xlsx');
                   await uploadXLSXToFirebase(xlsxFile);
-                  await PdfGenerator.createPDF(
-                      scannedItems, barcodeToInfoMap, scannedItemsModel);
+                  await PdfGenerator.createPDF(scannedItems, barcodeToInfoMap,
+                      scannedItemsModel, phoneNumber);
                   File pdfFile =
-                      File('${Directory.systemTemp.path}/scanned_items.pdf');
+                      File('${Directory.systemTemp.path}/$phoneNumber.pdf');
                   await uploadPDFToFirebase(pdfFile);
+                  sendWhatsAppMessage();
                   // Implement GPay payment logic here
                 },
                 child: const Row(
@@ -105,10 +130,10 @@ class PaymentPage extends StatelessWidget {
                   File xlsxFile =
                       File('${Directory.systemTemp.path}/scanned_items.xlsx');
                   await uploadXLSXToFirebase(xlsxFile);
-                  await PdfGenerator.createPDF(
-                      scannedItems, barcodeToInfoMap, scannedItemsModel);
+                  await PdfGenerator.createPDF(scannedItems, barcodeToInfoMap,
+                      scannedItemsModel, phoneNumber);
                   File pdfFile =
-                      File('${Directory.systemTemp.path}/scanned_items.pdf');
+                      File('${Directory.systemTemp.path}/$phoneNumber.pdf');
                   await uploadPDFToFirebase(pdfFile);
                   // Implement PhonePe payment logic here
                 },
@@ -136,10 +161,10 @@ class PaymentPage extends StatelessWidget {
                   File xlsxFile =
                       File('${Directory.systemTemp.path}/scanned_items.xlsx');
                   await uploadXLSXToFirebase(xlsxFile);
-                  await PdfGenerator.createPDF(
-                      scannedItems, barcodeToInfoMap, scannedItemsModel);
+                  await PdfGenerator.createPDF(scannedItems, barcodeToInfoMap,
+                      scannedItemsModel, phoneNumber);
                   File pdfFile =
-                      File('${Directory.systemTemp.path}/scanned_items.pdf');
+                      File('${Directory.systemTemp.path}/$phoneNumber.pdf');
                   await uploadPDFToFirebase(pdfFile);
                 },
                 child: const Row(

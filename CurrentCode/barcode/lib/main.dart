@@ -34,7 +34,9 @@ class MyApp extends StatelessWidget {
         '/': (context) => LoginPage(),
         '/scan': (context) => ScanBarcodePage(),
         '/list': (context) => ViewListPage(
-            scannedItemsModel: Provider.of<ScannedItemsModel>(context)),
+              scannedItemsModel: Provider.of<ScannedItemsModel>(context),
+              phoneNumber: GlobalData.phoneNumber,
+            ),
       },
     );
   }

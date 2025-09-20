@@ -4,8 +4,14 @@ import 'package:flutter/material.dart';
 
 class WelcomePage extends StatelessWidget {
   final String userName;
+  final String phoneNumber; // Add this line
 
-  const WelcomePage({super.key, required this.userName});
+  // Correct the constructor to include 'required' for phoneNumber
+  const WelcomePage({
+    Key? key,
+    required this.userName,
+    required this.phoneNumber,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +23,18 @@ class WelcomePage extends StatelessWidget {
             Text(
               'Welcome $userName,',
               style: const TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
+                fontSize: 36,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 10), // Add some spacing
+            Text(
+              'Phone Number: $phoneNumber', // Display the phone number
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.black,
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -28,7 +43,11 @@ class WelcomePage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/list'),
+              onPressed: () => Navigator.pushNamed(
+                context,
+                '/list',
+                arguments: {'phoneNumber': phoneNumber},
+              ),
               child: const Text('View List'),
             ),
             const SizedBox(height: 10),

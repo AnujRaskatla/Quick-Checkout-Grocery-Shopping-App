@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'pdf_generator.dart';
 import 'ScannedItemsModel.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'thank_you_page.dart';
+import 'IntermediatePage.dart';
 
 class PaymentPage extends StatelessWidget {
   final List<String> scannedItems;
@@ -168,8 +168,10 @@ class PaymentPage extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ThankYouPage(
-            pdfFileName: '$phoneNumber.pdf', phoneNumber: phoneNumber),
+        builder: (context) => IntermediatePage(
+          pdfFileName: '$phoneNumber.pdf',
+          phoneNumber: phoneNumber,
+        ),
       ),
     );
   }

@@ -79,53 +79,48 @@ class PaymentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32.0),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.payment,
-                  size: 64.0,
-                  color: Colors.black,
-                ),
-                SizedBox(height: 16.0),
-                Text(
-                  'Select a Payment Option',
-                  style: TextStyle(
-                    fontSize: 24.0,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32.0),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.payment,
+                    size: 64.0,
                     color: Colors.black,
                   ),
-                ),
-              ],
+                  SizedBox(height: 16.0),
+                  Text(
+                    'Select a Payment Option',
+                    style: TextStyle(
+                      fontSize: 24.0,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                buildPaymentButton('UPI', Colors.grey[300]!, Icons.payment,
-                    () async {
-                  await processPayment(context);
-                }),
-                SizedBox(height: 16),
-                buildPaymentButton(
-                    'Debit Card', Colors.grey[300]!, Icons.payment, () async {
-                  await processPayment(context);
-                }),
-                SizedBox(height: 16),
-                buildPaymentButton(
-                    'Net Banking', Colors.grey[300]!, Icons.payment, () async {
-                  await processPayment(context);
-                }),
-              ],
-            ),
-          ),
-        ],
+            SizedBox(height: 16.0),
+            buildPaymentButton('UPI', Colors.grey[300]!, Icons.payment,
+                () async {
+              await processPayment(context);
+            }),
+            SizedBox(height: 16),
+            buildPaymentButton('Debit Card', Colors.grey[300]!, Icons.payment,
+                () async {
+              await processPayment(context);
+            }),
+            SizedBox(height: 16),
+            buildPaymentButton('Net Banking', Colors.grey[300]!, Icons.payment,
+                () async {
+              await processPayment(context);
+            }),
+          ],
+        ),
       ),
     );
   }

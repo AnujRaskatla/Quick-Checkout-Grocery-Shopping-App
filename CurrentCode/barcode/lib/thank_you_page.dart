@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, prefer_const_literals_to_create_immutables, prefer_const_constructors, deprecated_member_use, avoid_print
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, avoid_print, prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -57,22 +57,29 @@ class ThankYouPage extends StatelessWidget {
               ],
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                // Implement copying the PDF link to the clipboard here
+            InkWell(
+              onTap: () async {
                 await copyPDFLinkToClipboard('$phoneNumber.pdf');
               },
-              style: ElevatedButton.styleFrom(
-                primary: Colors.grey[300],
-                onPrimary: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  side: BorderSide(color: Colors.grey[300]!),
+              child: RichText(
+                text: TextSpan(
+                  text: 'Here is the link to the PDF with your shopping bill: ',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: 'Copy Link',
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ],
                 ),
-                elevation: 5,
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               ),
-              child: Text('Copy PDF Link'),
             ),
             SizedBox(height: 16.0),
           ],

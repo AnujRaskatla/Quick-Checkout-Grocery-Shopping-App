@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, use_build_context_synchronously, deprecated_member_use, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -251,7 +253,7 @@ class _ResultPageState extends State<ResultPage> {
   void _compareValues() {
     if (totalWeight != null && weightValue != null) {
       final difference = (totalWeight! - weightValue!).abs();
-      if (difference <= 1) {
+      if (difference <= 20) {
         setState(() {
           comparisonResult = 'Weights Matched';
           resultColor = Colors.green;
@@ -292,19 +294,14 @@ class _ResultPageState extends State<ResultPage> {
               'Scanned Number: ${widget.scannedValue}',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 40),
             // Total Weight Section
             if (totalWeight != null)
               Column(
                 children: [
                   Text(
-                    'Total Weight:',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    '$totalWeight',
-                    style: TextStyle(fontSize: 18),
+                    'Weight of Shopping Items: ${totalWeight!.toStringAsFixed(1)}g',
+                    style: TextStyle(fontSize: 21),
                   ),
                 ],
               ),
@@ -319,17 +316,12 @@ class _ResultPageState extends State<ResultPage> {
               Column(
                 children: [
                   Text(
-                    'Weight:',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    '$weightValue',
-                    style: TextStyle(fontSize: 18),
+                    'Weight on Weighing Scale: ${weightValue!.toStringAsFixed(1)}g',
+                    style: TextStyle(fontSize: 21),
                   ),
                 ],
               ),
-            SizedBox(height: 20),
+            SizedBox(height: 40),
             // Comparison Result Section
             Text(
               comparisonResult,

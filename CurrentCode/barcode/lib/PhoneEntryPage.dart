@@ -95,25 +95,42 @@ class PhoneEntryPage extends StatelessWidget {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFFFF914D),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 20,
-                    ),
+                    primary: Colors.white, // Use Google's brand blue color
+                    padding: EdgeInsets.all(0),
+
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    elevation: 5.0, // Add a shadow
+                    elevation: 5.0,
+                    alignment: Alignment.center,
                   ),
-                  child: Text(
-                    'Sign in with Google',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 20), // Adjust padding as needed
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/g.jpg', // Replace with your Google logo image asset
+                          height: 40, // Adjust the height to fit your design
+                          width: 40, // Adjust the width to fit your design
+                        ),
+                        SizedBox(
+                            width:
+                                10), // Add some spacing between the logo and text
+                        Text(
+                          'Sign in with Google',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.blue, // Use white text color
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                SizedBox(height: 90),
               ],
             ),
           ),
@@ -319,26 +336,42 @@ class _SecondPageState extends State<SecondPage> {
                               GlobalData.userName = name;
                               GlobalData.phoneNumber = phoneNumber;
 
-                              // Navigate to CartNumberPage after saving
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => ThirdPage(),
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      ThirdPage(), // Replace SecondPage() with your SecondPage
+                                  transitionsBuilder: (context, animation,
+                                      secondaryAnimation, child) {
+                                    const begin = Offset(1.0, 0.0);
+                                    const end = Offset.zero;
+                                    const curve = Curves.easeInOut;
+                                    var tween =
+                                        Tween(begin: begin, end: end).chain(
+                                      CurveTween(curve: curve),
+                                    );
+                                    var offsetAnimation =
+                                        animation.drive(tween);
+                                    return SlideTransition(
+                                      position: offsetAnimation,
+                                      child: child,
+                                    );
+                                  },
                                 ),
                               );
                             },
                             icon: Icon(Icons.arrow_forward),
                             label: Text(''),
                             style: ElevatedButton.styleFrom(
-                              primary: Color(0xFFFF914D),
+                              primary: Color(0xFFFF725E),
                               padding: EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 20,
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
+                              shape: CircleBorder(),
                               elevation: 5.0,
+                              alignment: Alignment.center,
                             ),
                           ),
                       ],
@@ -409,23 +442,37 @@ class ThirdPage extends StatelessWidget {
                     // Navigate to the CartNumberPage
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => CartNumberPage(),
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            CartNumberPage(), // Replace SecondPage() with your SecondPage
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end).chain(
+                            CurveTween(curve: curve),
+                          );
+                          var offsetAnimation = animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
                       ),
                     );
                   },
                   icon: Icon(Icons.qr_code_scanner),
                   label: Text(''),
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFFFF914D),
+                    primary: Color(0xFFFF725E),
                     padding: EdgeInsets.symmetric(
                       horizontal: 40,
                       vertical: 20,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
+                    shape: CircleBorder(),
                     elevation: 5.0,
+                    alignment: Alignment.center,
                   ),
                 ),
                 SizedBox(height: 90),

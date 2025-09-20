@@ -12,76 +12,86 @@ class ScanBarcodePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Choose an Option..',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                String barcode = await FlutterBarcodeScanner.scanBarcode(
-                  '#FF0000',
-                  'Cancel',
-                  true,
-                  ScanMode.BARCODE,
-                );
-
-                if (barcode.isNotEmpty) {
-                  ScannedItemsModel scannedItemsModel =
-                      Provider.of<ScannedItemsModel>(context, listen: false);
-
-                  if (scannedItemsModel.scannedItems.contains(barcode)) {
-                    scannedItemsModel.incrementQuantity(barcode);
-                  } else {
-                    scannedItemsModel.addScannedItem(barcode);
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(color: Colors.grey[300]!),
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          Expanded(
+            flex: 3, // Image takes up 3/4 of the page
+            child: Image.asset('assets/bs.jpg'),
+          ),
+          Expanded(
+            flex: 1, // Text and buttons take up 1/4 of the page
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Choose an Option..',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.indigo[900],
+                  ),
                 ),
-                elevation: 5,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                primary: Colors.grey[300],
-              ),
-              child: Text('Start Barcode Scan', style: TextStyle(fontSize: 18)),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return const ManualBarcodeEntryDialog();
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    String barcode = await FlutterBarcodeScanner.scanBarcode(
+                      '#FF0000',
+                      'Cancel',
+                      true,
+                      ScanMode.BARCODE,
+                    );
+
+                    if (barcode.isNotEmpty) {
+                      ScannedItemsModel scannedItemsModel =
+                          Provider.of<ScannedItemsModel>(context,
+                              listen: false);
+
+                      if (scannedItemsModel.scannedItems.contains(barcode)) {
+                        scannedItemsModel.incrementQuantity(barcode);
+                      } else {
+                        scannedItemsModel.addScannedItem(barcode);
+                      }
+                    }
                   },
-                );
-
-                Navigator.pushNamed(context, '/list');
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(color: Colors.grey[300]!),
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 5,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    primary: Color(0xFFFF725E),
+                  ),
+                  child: Text('Scan a Barcode', style: TextStyle(fontSize: 18)),
                 ),
-                elevation: 5,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                primary: Colors.grey[300],
-              ),
-              child: Text('Enter Barcode Manually',
-                  style: TextStyle(fontSize: 18)),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const ManualBarcodeEntryDialog();
+                      },
+                    );
+
+                    Navigator.pushNamed(context, '/list');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 5,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    primary: Color(0xFFFF725E),
+                  ),
+                  child: Text('Enter Barcode Manually',
+                      style: TextStyle(fontSize: 18)),
+                ),
+                SizedBox(height: 60),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

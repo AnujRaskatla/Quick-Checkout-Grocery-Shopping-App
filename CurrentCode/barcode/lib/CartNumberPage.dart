@@ -53,27 +53,38 @@ class _CartNumberPageState extends State<CartNumberPage> {
                     // Navigate to the WelcomePage directly with the cart number, name, and phone number.
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => WelcomePage(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            WelcomePage(
                           cartNumber: GlobalData.cartNumber,
                           userName: GlobalData.userName,
                           phoneNumber: GlobalData.phoneNumber,
-                        ),
+                        ), // Replace SecondPage() with your SecondPage
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end).chain(
+                            CurveTween(curve: curve),
+                          );
+                          var offsetAnimation = animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
                       ),
                     );
                   },
                   icon: Icon(Icons.arrow_forward),
                   label: Text(''),
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFFFF914D),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
+                    primary: Color(0xFFFF725E),
+                    padding: EdgeInsets.all(15),
+                    shape: CircleBorder(),
                     elevation: 5.0,
+                    alignment: Alignment.center,
                   ),
                 ),
               ],

@@ -33,7 +33,7 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                 Icon(
                   Icons.qr_code_scanner,
                   size: 36,
-                  color: Colors.black,
+                  color: Colors.indigo[900],
                 ),
                 SizedBox(width: 10),
                 Text(
@@ -41,6 +41,7 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: Colors.indigo[900],
                   ),
                 ),
               ],
@@ -50,8 +51,15 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
               controller: _barcodeController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: 'Barcode',
-                border: OutlineInputBorder(),
+                labelText: 'Type Barcode Number here',
+                labelStyle: TextStyle(
+                  color: Colors.indigo[900], // Label text color
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.blue, // Border color when not focused
+                  ),
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -79,7 +87,7 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.grey[300],
+                    primary: Color(0xFFFF725E),
                     onPrimary: Colors.black,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
@@ -93,7 +101,7 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.grey[300],
+                    primary: Color(0xFFFF725E),
                     onPrimary: Colors.black,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),

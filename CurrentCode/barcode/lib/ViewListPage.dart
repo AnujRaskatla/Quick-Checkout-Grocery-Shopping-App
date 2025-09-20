@@ -234,11 +234,10 @@ class ViewListPageState extends State<ViewListPage>
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.grey[300],
+                      primary: Color(0xFFFF725E),
                       onPrimary: Colors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(color: Colors.grey[300]!),
                       ),
                     ),
                     child: Text('Scan Barcode'),
@@ -258,11 +257,10 @@ class ViewListPageState extends State<ViewListPage>
                       Navigator.pushNamed(context, '/list');
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.grey[300],
+                      primary: Color(0xFFFF725E),
                       onPrimary: Colors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(color: Colors.grey[300]!),
                       ),
                     ),
                     child: Text('Enter Barcode Manually'),
@@ -291,11 +289,10 @@ class ViewListPageState extends State<ViewListPage>
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.grey[300],
+                  primary: Color(0xFFFF725E),
                   onPrimary: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
-                    side: BorderSide(color: Colors.grey[300]!),
                   ),
                 ),
                 child: Text('Done Shopping'),

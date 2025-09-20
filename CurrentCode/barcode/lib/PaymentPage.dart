@@ -6,7 +6,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart'; // Import Razorpay package
 import 'pdf_generator.dart';
-import 'ScannedItemsModel.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'IntermediatePage.dart';
 

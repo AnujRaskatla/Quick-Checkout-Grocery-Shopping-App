@@ -8,6 +8,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'GlobalData.dart';
 import 'ScanBarcodePage.dart';
 import 'PaymentPage.dart';
+import 'pdf.dart';
 
 class DataStore {
   List<Map<String, dynamic>> dataList = [];
@@ -73,9 +74,11 @@ class _DisplayPageState extends State<DisplayPage> {
           content: Text('Do you want to end your shopping?'),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context)
                     .pop(true); // Return true when "Yes" is pressed.
+                await PDFGenerator.generatePDF(
+                    widget.dataList, GlobalData.phoneNumber);
               },
               child: Text('Yes'),
             ),

@@ -233,12 +233,12 @@ class ViewListPageState extends State<ViewListPage>
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.grey[300],
         title: const Text(
           'Scanned Products:',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.black),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Column(
         children: [
@@ -281,6 +281,11 @@ class ViewListPageState extends State<ViewListPage>
                 children: [
                   ElevatedButton(
                     onPressed: () => fetchAndCompareWeight(scannedItemsModel),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      backgroundColor: Colors
+                          .grey[300], // Set the button text color to black
+                    ),
                     child: const Text('Fetch Weight'),
                   ),
                   const SizedBox(height: 8),
@@ -310,6 +315,10 @@ class ViewListPageState extends State<ViewListPage>
                         ),
                       );
                     },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      backgroundColor: Colors.grey[300],
+                    ),
                     child: const Text('Done Shopping'),
                   ),
                 ],

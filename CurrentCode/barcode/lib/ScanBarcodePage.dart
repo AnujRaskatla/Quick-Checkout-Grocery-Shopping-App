@@ -12,59 +12,65 @@ class ScanBarcodePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          title: const Text(
-            'Select an Option:',
-            style: TextStyle(color: Colors.white),
-          ),
-          iconTheme: const IconThemeData(color: Colors.white),
+      appBar: AppBar(
+        backgroundColor: Colors.grey[300],
+        title: const Text(
+          'Select an Option:',
+          style: TextStyle(color: Colors.black),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  String barcode = await FlutterBarcodeScanner.scanBarcode(
-                    '#FF0000',
-                    'Cancel',
-                    true,
-                    ScanMode.BARCODE,
-                  );
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                String barcode = await FlutterBarcodeScanner.scanBarcode(
+                  '#FF0000',
+                  'Cancel',
+                  true,
+                  ScanMode.BARCODE,
+                );
 
-                  if (barcode.isNotEmpty) {
-                    // Check if the scanned barcode already exists in the list
-                    ScannedItemsModel scannedItemsModel =
-                        Provider.of<ScannedItemsModel>(context, listen: false);
+                if (barcode.isNotEmpty) {
+                  ScannedItemsModel scannedItemsModel =
+                      Provider.of<ScannedItemsModel>(context, listen: false);
 
-                    if (scannedItemsModel.scannedItems.contains(barcode)) {
-                      // If the barcode exists, increment its quantity
-                      scannedItemsModel.incrementQuantity(barcode);
-                    } else {
-                      // If the barcode is new, add it to the list
-                      scannedItemsModel.addScannedItem(barcode);
-                    }
+                  if (scannedItemsModel.scannedItems.contains(barcode)) {
+                    scannedItemsModel.incrementQuantity(barcode);
+                  } else {
+                    scannedItemsModel.addScannedItem(barcode);
                   }
-                },
-                child: const Text('Start Barcode Scan'),
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.grey[300],
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return const ManualBarcodeEntryDialog();
-                    },
-                  );
+              child: const Text('Start Barcode Scan'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return const ManualBarcodeEntryDialog();
+                  },
+                );
 
-                  Navigator.pushNamed(context, '/list');
-                },
-                child: const Text('Enter Barcode Manually'),
+                Navigator.pushNamed(context, '/list');
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.grey[300],
               ),
-            ],
-          ),
-        ));
+              child: const Text('Enter Barcode Manually'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

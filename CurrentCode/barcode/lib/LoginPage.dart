@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, file_names, use_key_in_widget_constructors
+// ignore_for_file: file_names, use_key_in_widget_constructors, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'WelcomePage.dart';
@@ -55,9 +55,8 @@ class LoginPageState extends State<LoginPage> {
             ElevatedButton(
               onPressed: () {
                 String enteredName = _nameController.text;
-                String enteredPhoneNumber = "+91" + _phoneNumberController.text;
+                String enteredPhoneNumber = "+91${_phoneNumberController.text}";
 
-                // Assign the entered values to the global variables
                 GlobalData.userName = enteredName;
                 GlobalData.phoneNumber = enteredPhoneNumber;
 
@@ -65,10 +64,16 @@ class LoginPageState extends State<LoginPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => WelcomePage(
-                        userName: enteredName, phoneNumber: enteredPhoneNumber),
+                      userName: enteredName,
+                      phoneNumber: enteredPhoneNumber,
+                    ),
                   ),
                 );
               },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.grey[300],
+              ),
               child: Text('Submit'),
             ),
           ],

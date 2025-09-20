@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, avoid_print
+// ignore_for_file: deprecated_member_use, avoid_print, prefer_is_empty
 
 import 'package:pdf/widgets.dart' as pw;
 import 'dart:io';

@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 
 class WelcomePage extends StatelessWidget {
   final String userName;
-  final String phoneNumber; // Add this line
+  final String phoneNumber;
 
-  // Correct the constructor to include 'required' for phoneNumber
   const WelcomePage({
     Key? key,
     required this.userName,
@@ -28,17 +27,13 @@ class WelcomePage extends StatelessWidget {
                 color: Colors.black,
               ),
             ),
-            const SizedBox(height: 10), // Add some spacing
-            Text(
-              'Phone Number: $phoneNumber', // Display the phone number
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.black,
-              ),
-            ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/scan'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.grey[300],
+              ),
               child: const Text('Scan Barcode'),
             ),
             const SizedBox(height: 10),
@@ -47,6 +42,10 @@ class WelcomePage extends StatelessWidget {
                 context,
                 '/list',
                 arguments: {'phoneNumber': phoneNumber},
+              ),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.grey[300],
               ),
               child: const Text('View List'),
             ),

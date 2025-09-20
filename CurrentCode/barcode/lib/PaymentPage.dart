@@ -1,8 +1,9 @@
-// ignore_for_file: avoid_print, file_names, use_key_in_widget_constructors, deprecated_member_use
+// ignore_for_file: prefer_const_constructors, avoid_print, file_names, use_key_in_widget_constructors, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
 import 'pdf_generator.dart';
 import 'ScannedItemsModel.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,6 +21,7 @@ class PaymentPage extends StatelessWidget {
     required this.phoneNumber,
   });
 
+  // Upload XLSX file to Firebase Storage
   Future<void> uploadXLSXToFirebase(File file) async {
     try {
       if (file.existsSync()) {
@@ -35,6 +37,7 @@ class PaymentPage extends StatelessWidget {
     }
   }
 
+  // Upload PDF file to Firebase Storage
   Future<void> uploadPDFToFirebase(File pdfFile) async {
     try {
       if (pdfFile.existsSync()) {
@@ -50,6 +53,7 @@ class PaymentPage extends StatelessWidget {
     }
   }
 
+  // Send PDF via WhatsApp
   Future<void> sendPDFViaWhatsApp(String pdfFileName) async {
     final storage = FirebaseStorage.instance;
 
@@ -71,125 +75,119 @@ class PaymentPage extends StatelessWidget {
     }
   }
 
+  Future<void> copyPDFLinkToClipboard(String pdfFileName) async {
+    final storage = FirebaseStorage.instance;
+
+    try {
+      final pdfRef = storage.ref().child(pdfFileName);
+      final pdfUrl = await pdfRef.getDownloadURL();
+
+      String message = 'Here is the PDF file for payment: $pdfUrl';
+
+      final ClipboardData data = ClipboardData(text: message);
+      await Clipboard.setData(data);
+
+      print('PDF link copied to clipboard.');
+    } catch (e) {
+      print('Error retrieving PDF download URL: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.grey[300],
         title: const Text(
-          'Select Payment Method',
-          style: TextStyle(color: Colors.white),
+          'Select Payment Method:',
+          style: TextStyle(color: Colors.black),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment:
-              CrossAxisAlignment.stretch, // Align buttons to full width
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange, // Change the button color
-                  padding: const EdgeInsets.all(16.0),
-                ),
-                onPressed: () async {
-                  File xlsxFile =
-                      File('${Directory.systemTemp.path}/scanned_items.xlsx');
-                  await uploadXLSXToFirebase(xlsxFile);
-                  await PdfGenerator.createPDF(scannedItems, barcodeToInfoMap,
-                      scannedItemsModel, phoneNumber);
-                  File pdfFile =
-                      File('${Directory.systemTemp.path}/$phoneNumber.pdf');
-                  await uploadPDFToFirebase(pdfFile);
-                  // Send PDF to WhatsApp
-                  await sendPDFViaWhatsApp('$phoneNumber.pdf');
+            Spacer(),
 
-                  // Implement GPay payment logic here
-                },
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.payment), // Add an icon
-                    SizedBox(width: 8.0), // Add spacing
-                    Text(
-                      'UPI',
-                      style: TextStyle(fontSize: 18.0),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Change the button color
-                  padding: const EdgeInsets.all(16.0),
-                ),
-                onPressed: () async {
-                  File xlsxFile =
-                      File('${Directory.systemTemp.path}/scanned_items.xlsx');
-                  await uploadXLSXToFirebase(xlsxFile);
-                  await PdfGenerator.createPDF(scannedItems, barcodeToInfoMap,
-                      scannedItemsModel, phoneNumber);
-                  File pdfFile =
-                      File('${Directory.systemTemp.path}/$phoneNumber.pdf');
-                  await uploadPDFToFirebase(pdfFile);
-                  // Send PDF to WhatsApp
-                  await sendPDFViaWhatsApp('$phoneNumber.pdf');
-                  // Implement PhonePe payment logic here
-                },
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.payment), // Add an icon
-                    SizedBox(width: 8.0), // Add spacing
-                    Text(
-                      'Debit Card',
-                      style: TextStyle(fontSize: 18.0),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Change the button color
-                  padding: const EdgeInsets.all(16.0),
-                ),
-                onPressed: () async {
-                  File xlsxFile =
-                      File('${Directory.systemTemp.path}/scanned_items.xlsx');
-                  await uploadXLSXToFirebase(xlsxFile);
-                  await PdfGenerator.createPDF(scannedItems, barcodeToInfoMap,
-                      scannedItemsModel, phoneNumber);
-                  File pdfFile =
-                      File('${Directory.systemTemp.path}/$phoneNumber.pdf');
-                  await uploadPDFToFirebase(pdfFile);
-                  // Send PDF to WhatsApp
-                  await sendPDFViaWhatsApp('$phoneNumber.pdf');
-                },
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.payment), // Add an icon
-                    SizedBox(width: 8.0), // Add spacing
-                    Text(
-                      'Net Banking',
-                      style: TextStyle(fontSize: 18.0),
-                    ),
-                  ],
-                ),
-              ),
+            // UPI Payment Button
+            buildPaymentButton('UPI', Colors.grey[300]!, Icons.payment,
+                () async {
+              await processPayment();
+              // Implement GPay payment logic here
+            }),
+
+            SizedBox(height: 16),
+
+            // Debit Card Payment Button
+            buildPaymentButton('Debit Card', Colors.grey[300]!, Icons.payment,
+                () async {
+              await processPayment();
+              // Implement PhonePe payment logic here
+            }),
+
+            SizedBox(height: 16),
+
+            // Net Banking Payment Button
+            buildPaymentButton('Net Banking', Colors.grey[300]!, Icons.payment,
+                () async {
+              await processPayment();
+              // Implement Net Banking payment logic here
+            }),
+
+            Spacer(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Build a styled payment button
+  Widget buildPaymentButton(
+      String label, Color color, IconData icon, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          padding: const EdgeInsets.all(16.0),
+        ),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: Colors.black,
+            ), // Set the icon color to black),
+            SizedBox(width: 8.0),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 18.0,
+                color: Colors.black,
+              ), // Set the font color to black),
             ),
           ],
         ),
       ),
     );
+  }
+
+  // Process payment logic
+  Future<void> processPayment() async {
+    File xlsxFile = File('${Directory.systemTemp.path}/scanned_items.xlsx');
+    await uploadXLSXToFirebase(xlsxFile);
+
+    await PdfGenerator.createPDF(
+        scannedItems, barcodeToInfoMap, scannedItemsModel, phoneNumber);
+    File pdfFile = File('${Directory.systemTemp.path}/$phoneNumber.pdf');
+    await uploadPDFToFirebase(pdfFile);
+    // Send PDF to WhatsApp
+    //await sendPDFViaWhatsApp('$phoneNumber.pdf');
+
+    // Copy PDF link to Clipboard
+    await copyPDFLinkToClipboard('$phoneNumber.pdf');
   }
 }

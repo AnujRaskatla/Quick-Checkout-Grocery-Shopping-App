@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 class ScannedItemsModel extends ChangeNotifier {
   List<String> scannedItems = [];
   Map<String, int> itemQuantities = {}; // Map to store quantities
+  void removeScannedItem(String barcode) {
+    scannedItems.remove(barcode);
+    notifyListeners();
+  }
 
   void addScannedItem(String barcode) {
     scannedItems.add(barcode);

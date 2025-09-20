@@ -33,6 +33,8 @@ class ViewListPageState extends State<ViewListPage>
   double fetchedWeight = 0.0;
 
   late DatabaseReference _databaseReference;
+  bool isEditMode = false; // Added to control the edit mode
+  List<String> selectedItems = [];
 
   @override
   void initState() {
@@ -83,44 +85,45 @@ class ViewListPageState extends State<ViewListPage>
     double updatedPrice = initialPrice * quantity;
     double updatedWeight = initialWeight * quantity;
 
-    return DataRow(cells: <DataCell>[
-      DataCell(Row(
-        children: [
-          IconButton(
-            onPressed: () {
-              scannedItemsModel.incrementQuantity(scannedItem);
-            },
-            icon: const Icon(Icons.add),
-          ),
-          Text(quantity.toString()),
-          IconButton(
-            onPressed: () {
-              scannedItemsModel.decrementQuantity(scannedItem);
-            },
-            icon: const Icon(Icons.remove),
-          ),
-          IconButton(
-            onPressed: () {
-              setState(() {
-                scannedItemsModel.scannedItems.removeAt(index);
-              });
-            },
-            icon: const Icon(Icons.delete),
-          ),
-        ],
-      )),
-      DataCell(Text((index + 1).toString())),
-      DataCell(Text(info.length > 0 ? info[0] : 'N/A')),
-      DataCell(Text(scannedItem)),
-      DataCell(Text(updatedPrice.toStringAsFixed(2))),
-      DataCell(Text(updatedWeight.toStringAsFixed(2))),
-    ]);
+    return DataRow(
+      selected: isEditMode && selectedItems.contains(scannedItem),
+      onSelectChanged: (bool? selected) {
+        setState(() {
+          if (selected != null && selected) {
+            selectedItems.add(scannedItem);
+          } else {
+            selectedItems.remove(scannedItem);
+          }
+        });
+      },
+      cells: <DataCell>[
+        DataCell(Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                scannedItemsModel.incrementQuantity(scannedItem);
+              },
+              icon: const Icon(Icons.add),
+            ),
+            Text(quantity.toString()),
+            IconButton(
+              onPressed: () {
+                scannedItemsModel.decrementQuantity(scannedItem);
+              },
+              icon: const Icon(Icons.remove),
+            ),
+          ],
+        )),
+        DataCell(Text((index + 1).toString())),
+        DataCell(Text(info.length > 0 ? info[0] : 'N/A')),
+        DataCell(Text(updatedPrice.toStringAsFixed(2))),
+      ],
+    );
   }
 
   DataRow _buildTotalRow(
       ScannedItemsModel scannedItemsModel, double totalWeight) {
     double totalPrice = 0.0;
-    totalWeight = 0.0; // Remove the redeclaration of totalWeight
 
     for (String scannedItem in scannedItemsModel.scannedItems) {
       List<String> info =
@@ -139,9 +142,7 @@ class ViewListPageState extends State<ViewListPage>
         const DataCell(Text('Total:')),
         const DataCell(Text('')),
         const DataCell(Text('')),
-        const DataCell(Text('')),
         DataCell(Text(totalPrice.toStringAsFixed(2))),
-        DataCell(Text(totalWeight.toStringAsFixed(2))),
       ],
     );
   }
@@ -167,11 +168,52 @@ class ViewListPageState extends State<ViewListPage>
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey[300],
-        title: const Text(
-          'Scanned Products:',
-          style: TextStyle(color: Colors.black),
-        ),
+        title: isEditMode
+            ? Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        isEditMode = false;
+                        selectedItems.clear();
+                      });
+                    },
+                    icon: const Icon(Icons.cancel),
+                  ),
+                  const SizedBox(width: 8),
+                  Text('Select items to delete'),
+                ],
+              )
+            : const Text(
+                'Scanned Products:',
+                style: TextStyle(color: Colors.black),
+              ),
         iconTheme: const IconThemeData(color: Colors.black),
+        actions: [
+          if (!isEditMode)
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  isEditMode = true;
+                });
+              },
+              icon: const Icon(Icons.delete),
+            ),
+          if (isEditMode)
+            IconButton(
+              onPressed: () {
+                // Delete selected items here
+                for (String item in selectedItems) {
+                  scannedItemsModel.removeScannedItem(item);
+                }
+                setState(() {
+                  isEditMode = false;
+                  selectedItems.clear();
+                });
+              },
+              icon: const Icon(Icons.delete),
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         // Wrap your Column with SingleChildScrollView
@@ -194,9 +236,7 @@ class ViewListPageState extends State<ViewListPage>
                     DataColumn(label: Text('Qty.')),
                     DataColumn(label: Text('S.no')),
                     DataColumn(label: Text('Name')),
-                    DataColumn(label: Text('Barcode Number')),
                     DataColumn(label: Text('Price')),
-                    DataColumn(label: Text('Weight')),
                   ],
                   rows: [
                     for (int index = 0; index < scannedItems.length; index++)

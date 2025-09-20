@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, prefer_const_constructors, use_key_in_widget_constructors, use_build_context_synchronously, avoid_print, deprecated_member_use, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_unnecessary_containers
+// ignore_for_file: file_names, prefer_const_constructors, use_key_in_widget_constructors, use_build_context_synchronously, avoid_print, deprecated_member_use, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,31 +15,31 @@ class PhoneEntryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
+      body: ListView(
+        // Use ListView for scrolling
         children: [
-          Expanded(
-            flex: 2,
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/ig.jpg'),
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height *
+                0.60, // Adjust the height as needed
+            child: Image.asset('assets/ig.jpg'),
           ),
-          SizedBox(height: 30),
-          Expanded(
-            flex: 1,
+          Padding(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Welcome to ZuppCart',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Welcome to ZuppCart',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 16),
                 Text(
@@ -183,202 +183,196 @@ class _SecondPageState extends State<SecondPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
+      body: ListView(
         children: [
-          Expanded(
-            flex: 2,
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                      'assets/sp.jpg'), // Replace with your image path
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height *
+                0.60, // Adjust the height as needed
+            child: Image.asset('assets/sp.jpg'),
           ),
-          Expanded(
-            flex: 1,
-            child: SingleChildScrollView(
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
               // Add SingleChildScrollView to allow scrolling
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Great, You\'re Signed in!',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Great, You\'re Signed in!',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Enter the details below to continue',
+                  style: TextStyle(
+                    fontSize: 16,
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Enter the details below to continue',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          child: TextFormField(
-                            controller: nameController,
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.indigo[900], // Text color
-                            ),
-                            onChanged: (value) {
-                              if (value.isNotEmpty) {
-                                nameController.text =
-                                    value[0].toUpperCase() + value.substring(1);
-                                nameController.selection =
-                                    TextSelection.fromPosition(
-                                  TextPosition(
-                                      offset: nameController.text.length),
-                                );
-                              }
-                              // Validate input whenever the name changes
-                              validateInput();
-                            },
-                            decoration: InputDecoration(
-                              labelText: 'Name',
-                              labelStyle: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold,
-                                color: Colors.indigo[900], // Label text color
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors
-                                      .blue, // Border color when not focused
-                                ),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color:
-                                      Colors.blue, // Border color when focused
-                                ),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 16,
-                              ),
-                            ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        child: TextFormField(
+                          controller: nameController,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.indigo[900], // Text color
                           ),
-                        ),
-                        SizedBox(height: 20),
-                        Container(
-                          child: TextFormField(
-                            controller: phoneNumberController,
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.indigo[900], // Text color
-                            ),
-                            keyboardType: TextInputType.phone,
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter
-                                  .digitsOnly, // Allow only digits
-                              LengthLimitingTextInputFormatter(
-                                  10), // Limit input to 10 characters
-                            ],
-                            onChanged: (value) {
-                              // Validate input whenever the phone number changes
-                              validateInput();
-                            }, // Set keyboard type to phone
-                            decoration: InputDecoration(
-                              labelText: 'Phone Number',
-                              labelStyle: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold,
-                                color: Colors.indigo[900], // Label text color
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors
-                                      .blue, // Border color when not focused
-                                ),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color:
-                                      Colors.blue, // Border color when focused
-                                ),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        if (isInputValid) // Display the icon only when input is valid
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              final name = nameController.text;
-                              final phoneNumber = phoneNumberController.text;
-
-                              // Store user data in Cloud Firestore
-                              final firestore = FirebaseFirestore.instance;
-                              await firestore
-                                  .collection('users')
-                                  .doc(widget.user.uid)
-                                  .set({
-                                'name': name,
-                                'phone_number': phoneNumber,
-                              });
-                              // Update GlobalData
-                              GlobalData.userName = name;
-                              GlobalData.phoneNumber = phoneNumber;
-
-                              Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation,
-                                          secondaryAnimation) =>
-                                      ThirdPage(), // Replace SecondPage() with your SecondPage
-                                  transitionsBuilder: (context, animation,
-                                      secondaryAnimation, child) {
-                                    const begin = Offset(1.0, 0.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.easeInOut;
-                                    var tween =
-                                        Tween(begin: begin, end: end).chain(
-                                      CurveTween(curve: curve),
-                                    );
-                                    var offsetAnimation =
-                                        animation.drive(tween);
-                                    return SlideTransition(
-                                      position: offsetAnimation,
-                                      child: child,
-                                    );
-                                  },
-                                ),
+                          onChanged: (value) {
+                            if (value.isNotEmpty) {
+                              nameController.text =
+                                  value[0].toUpperCase() + value.substring(1);
+                              nameController.selection =
+                                  TextSelection.fromPosition(
+                                TextPosition(
+                                    offset: nameController.text.length),
                               );
-                            },
-                            icon: Icon(Icons.arrow_forward),
-                            label: Text(''),
-                            style: ElevatedButton.styleFrom(
-                              primary: Color(0xFFFF725E),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 20,
+                            }
+                            // Validate input whenever the name changes
+                            validateInput();
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Name',
+                            labelStyle: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold,
+                              color: Colors.indigo[900], // Label text color
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors
+                                    .blue, // Border color when not focused
                               ),
-                              shape: CircleBorder(),
-                              elevation: 5.0,
-                              alignment: Alignment.center,
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.blue, // Border color when focused
+                              ),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 16,
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Container(
+                        child: TextFormField(
+                          controller: phoneNumberController,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.indigo[900], // Text color
+                          ),
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter
+                                .digitsOnly, // Allow only digits
+                            LengthLimitingTextInputFormatter(
+                                10), // Limit input to 10 characters
+                          ],
+                          onChanged: (value) {
+                            // Validate input whenever the phone number changes
+                            validateInput();
+                          }, // Set keyboard type to phone
+                          decoration: InputDecoration(
+                            labelText: 'Phone Number',
+                            labelStyle: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold,
+                              color: Colors.indigo[900], // Label text color
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors
+                                    .blue, // Border color when not focused
+                              ),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.blue, // Border color when focused
+                              ),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      if (isInputValid) // Display the icon only when input is valid
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            final name = nameController.text;
+                            final phoneNumber = phoneNumberController.text;
+
+                            // Store user data in Cloud Firestore
+                            final firestore = FirebaseFirestore.instance;
+                            await firestore
+                                .collection('users')
+                                .doc(widget.user.uid)
+                                .set({
+                              'name': name,
+                              'phone_number': phoneNumber,
+                            });
+                            // Update GlobalData
+                            GlobalData.userName = name;
+                            GlobalData.phoneNumber = phoneNumber;
+
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation,
+                                        secondaryAnimation) =>
+                                    ThirdPage(), // Replace SecondPage() with your SecondPage
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  const begin = Offset(1.0, 0.0);
+                                  const end = Offset.zero;
+                                  const curve = Curves.easeInOut;
+                                  var tween =
+                                      Tween(begin: begin, end: end).chain(
+                                    CurveTween(curve: curve),
+                                  );
+                                  var offsetAnimation = animation.drive(tween);
+                                  return SlideTransition(
+                                    position: offsetAnimation,
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          icon: Icon(Icons.arrow_forward),
+                          label: Text(''),
+                          style: ElevatedButton.styleFrom(
+                            primary: Color(0xFFFF725E),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 20,
+                            ),
+                            shape: CircleBorder(),
+                            elevation: 5.0,
+                            alignment: Alignment.center,
+                          ),
+                        ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -403,31 +397,31 @@ class ThirdPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
+      body: ListView(
         children: [
-          Expanded(
-            flex: 2,
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                      'assets/sq.jpg'), // Replace with your image path
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height *
+                0.60, // Adjust the height as needed
+            child: Image.asset('assets/sq.jpg'),
           ),
-          Expanded(
-            flex: 1,
+          Padding(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              // Add SingleChildScrollView to allow scrolling
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Scan QR code on your Cart',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Scan QR on your Cart',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 16),
                 Text(

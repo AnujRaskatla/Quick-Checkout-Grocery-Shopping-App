@@ -36,7 +36,7 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
       body: ListView(
         // Use ListView for scrolling
         children: [
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height *
                 0.60, // Adjust the height as needed
             child: Image.asset('assets/bs.jpg'),

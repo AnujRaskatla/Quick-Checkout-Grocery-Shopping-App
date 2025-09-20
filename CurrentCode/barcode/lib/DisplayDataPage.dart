@@ -113,6 +113,7 @@ class _DisplayPageState extends State<DisplayPage> {
   Widget build(BuildContext context) {
     double totalWeight = 0;
     int totalPriceInPaise = 0;
+    double totalPrice = 0;
     for (int index = 0; index < widget.dataList.length; index++) {
       double price = widget.dataList[index]['Price']?.toDouble() ?? 0.0;
       int quantity = widget.dataList[index]['Quantity'] ?? 0;
@@ -353,12 +354,12 @@ class _DataRowState extends State<DataRow> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 2),
-        padding: EdgeInsets.all(4.0),
+        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          border: Border.all(),
+          border: Border.all(color: Colors.grey[300]!),
           borderRadius: BorderRadius.circular(12.0),
-          color: widget.isDimmed ? Colors.grey : Colors.white,
+          color: widget.isDimmed ? Colors.grey[100] : Colors.white,
         ),
         child: Column(
           children: [
@@ -366,94 +367,87 @@ class _DataRowState extends State<DataRow> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  ' ${widget.data['Name']}',
+                  widget.data['Name'],
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  '(₹) $totalPrice ',
+                  '₹${totalPrice.toStringAsFixed(2)}',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: Colors.green,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 5),
+            SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Text(
+                  'Barcode: ${widget.data['Barcode_Number']}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  'Weight: ${totalWeight.toStringAsFixed(2)} kg',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
                 Row(
                   children: [
-                    Text(
-                      '  (${widget.data['Barcode_Number']})',
-                    ),
-                    Text(
-                      '(${totalWeight.toStringAsFixed(2)})',
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () => _updateQuantity(-1),
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.white,
-                              padding: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '-',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
+                    InkWell(
+                      onTap: () => _updateQuantity(-1),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.remove,
+                            color: Colors.white,
+                            size: 18,
                           ),
                         ),
-                        Text(' $_quantity ', style: TextStyle(fontSize: 18)),
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () => _updateQuantity(1),
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.white,
-                              padding: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '+',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        '$_quantity',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => _updateQuantity(1),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 18,
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),

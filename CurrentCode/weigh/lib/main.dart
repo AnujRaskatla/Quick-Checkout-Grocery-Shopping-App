@@ -473,49 +473,83 @@ class ReceivedWeightPage extends StatefulWidget {
 }
 
 class ReceivedWeightPageState extends State<ReceivedWeightPage> {
-  double receivedWeight = 0.0;
+  bool isReceivedWeightEqualToTotal = false;
+  String fetchedWeight = 'N/A';
+  @override
+  void initState() {
+    super.initState();
+    fetchWeight(); // Fetch weight when the page is initialized
+  }
+
+  void fetchWeight() async {
+    try {
+      final response =
+          await http.get(Uri.parse('http://192.168.1.102/getWeight'));
+      if (response.statusCode == 200) {
+        setState(() {
+          fetchedWeight = response.body;
+        });
+        print('Fetched Weight: $fetchedWeight');
+        print('Total Weight: ${widget.totalWeight.toString()}');
+        // Update the equality check when fetched weight equals totalWeight
+        setState(() {
+          isReceivedWeightEqualToTotal =
+              fetchedWeight == widget.totalWeight.toString();
+        });
+      } else {
+        print('Request failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    bool isReceivedWeightEqualToTotal = receivedWeight == widget.totalWeight;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Received Weight'),
+        backgroundColor: Colors.black,
+        title: const Text(
+          'Make Payment: ',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Received Weight'),
-              onChanged: (value) {
-                setState(() {
-                  receivedWeight = double.tryParse(value) ?? 0.0;
-                });
-              },
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16.0), // Create a 2-row space after AppBar
+          Text(
+            'Fetched Weight: $fetchedWeight ',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
-            if (isReceivedWeightEqualToTotal)
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  'Weighing Scale = Total Product Weight',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
+          ),
+          if (isReceivedWeightEqualToTotal)
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'Weighing Scale = Total Product Weight',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ElevatedButton(
+            ),
+          const Spacer(), // Create empty space between content and button
+          // Additional spacer for the 2-row space above the button
+          Align(
+            alignment: Alignment.bottomCenter, // Align at the bottom center
+            child: ElevatedButton(
               onPressed: () {
                 // Navigate to payment screen or perform payment logic here
                 // Navigator.pushNamed(context, '/payment');
               },
               child: const Text('Make Payment'),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

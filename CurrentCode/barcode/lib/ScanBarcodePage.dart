@@ -292,15 +292,15 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                         // Data is already present, increment quantity
                         widget.dataStore.updateQuantity(existingIndex, 1);
                         //_showDataPage(widget.dataStore.dataList);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DisplayPage(
-                              dataList: widget.dataStore.dataList,
-                              dataStore: widget.dataStore,
-                            ),
-                          ),
-                        );
+                        //Navigator.push(
+                        //  context,
+                        //  MaterialPageRoute(
+                        //   builder: (context) => DisplayPage(
+                        //    dataList: widget.dataStore.dataList,
+                        //    dataStore: widget.dataStore,
+                        //  ),
+                        //  ),
+                        //  );
                       } else {
                         // Data not found in dataList, fetch it from Firestore
                         _plistCollection
@@ -330,15 +330,15 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                         });
                       }
 
-                      // Navigator.push(
-                      //  context,
-                      //   MaterialPageRoute(
-                      //  builder: (context) => DisplayPage(
-                      //    dataList: widget.dataStore.dataList,
-                      //    dataStore: widget.dataStore,
-                      //  ),
-                      //  ),
-                      // );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DisplayPage(
+                            dataList: widget.dataStore.dataList,
+                            dataStore: widget.dataStore,
+                          ),
+                        ),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(

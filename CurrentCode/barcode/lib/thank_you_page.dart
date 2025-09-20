@@ -54,24 +54,10 @@ class ThankYouPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Icon(
-                  Icons.check_circle,
-                  size: 48,
-                  color: Colors.green,
-                ),
-                SizedBox(width: 10),
-                Text(
-                  'Thank You',
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
+            SizedBox(
+              height: MediaQuery.of(context).size.height *
+                  0.60, // Adjust the height as needed
+              child: Image.asset('assets/tq.jpg'),
             ),
             SizedBox(height: 20),
             InkWell(

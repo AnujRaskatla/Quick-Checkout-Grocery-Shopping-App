@@ -56,7 +56,8 @@ dependencies:
   googleapis_auth: ^1.4.1
   mailer: ^6.0.1
   appwrite: ^11.0.0
-
+  google_fonts: ^6.1.0
+  scroll_to_index: ^3.0.1
   
 
   
@@ -92,8 +93,10 @@ flutter:
    - assets/sq.jpg
    - assets/ac.jpg
    - assets/bs.jpg
+   - assets/tq.jpg
    - assets/g.jpg
    - assets/lg.png
+   - assets/ct.jpg
     
     
   # assets:

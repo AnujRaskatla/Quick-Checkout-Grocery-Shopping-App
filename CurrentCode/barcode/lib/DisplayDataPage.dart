@@ -9,6 +9,7 @@ import 'GlobalData.dart';
 import 'ScanBarcodePage.dart';
 import 'PaymentPage.dart';
 import 'pdf.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class DataStore {
   List<Map<String, dynamic>> dataList = [];
@@ -160,23 +161,19 @@ class _DisplayPageState extends State<DisplayPage> {
         return false; // Return false to prevent the default back behavior
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         appBar: AppBar(
-          toolbarHeight: 100,
+          automaticallyImplyLeading: false,
           elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20.0), // Adjust the radius as needed
-              bottomRight: Radius.circular(20.0), // Adjust the radius as needed
-            ),
-          ),
-          backgroundColor: Colors.blueGrey[900],
+          backgroundColor: Colors.blue[900], // Change the background color
           title: Text(
             'Shopping List:',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+            style: GoogleFonts.roboto(
+              textStyle: TextStyle(
+                color: Colors.white, // Change the text color
+                fontSize: 24, // Increase the font size
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           actions: <Widget>[
@@ -203,7 +200,7 @@ class _DisplayPageState extends State<DisplayPage> {
                   width: 50, // Adjust the width of the circular button
                   height: 50, // Adjust the height of the circular button
                   decoration: BoxDecoration(
-                    color: Colors.orange[900], // Change the color as needed
+                    color: Colors.blue[900], // Change the color as needed
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -232,7 +229,7 @@ class _DisplayPageState extends State<DisplayPage> {
                   width: 50, // Adjust the width of the circular button
                   height: 50, // Adjust the height of the circular button
                   decoration: BoxDecoration(
-                    color: Colors.orange[900], // Change the color as needed
+                    color: Colors.blue[900], // Change the color as needed
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -288,7 +285,7 @@ class _DisplayPageState extends State<DisplayPage> {
                   width: 50, // Adjust the width of the circular button
                   height: 50, // Adjust the height of the circular button
                   decoration: BoxDecoration(
-                    color: Colors.orange[900], // Change the color as needed
+                    color: Colors.blue[900], // Change the color as needed
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -302,6 +299,7 @@ class _DisplayPageState extends State<DisplayPage> {
             ),
           ],
         ),
+
         body: Column(
           children: <Widget>[
             Expanded(
@@ -333,11 +331,21 @@ class _DisplayPageState extends State<DisplayPage> {
               ),
             ),
             Container(
-              // margin: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-              height: 60,
+              margin: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              // height: 60,
               decoration: BoxDecoration(
-                color: Colors.blueGrey[900], // Change the background color
-                borderRadius: BorderRadius.circular(0.0),
+                // color: Colors.blue[
+                //  900], // Change the background color   backgroundColor: Color(0xFFF1F1FD),
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(30.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.2), // Shadow color
+                    spreadRadius: 1,
+                    blurRadius: 2,
+                    offset: Offset(0, 2), // Shadow offset
+                  ),
+                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -345,9 +353,9 @@ class _DisplayPageState extends State<DisplayPage> {
                   Text(
                     ' Items: ${widget.dataList.length}   Total: ₹ ${totalPrice.toStringAsFixed(2)}',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white, // Change the text color
+                      color: Colors.blueGrey[900], // Change the text color
                     ),
                   ),
                   SizedBox(height: 2),
@@ -361,8 +369,7 @@ class _DisplayPageState extends State<DisplayPage> {
                         width: 50, // Adjust the width of the circular button
                         height: 50, // Adjust the height of the circular button
                         decoration: BoxDecoration(
-                          color:
-                              Colors.orange[900], // Change the color as needed
+                          color: Colors.blue[900], // Change the color as needed
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -434,12 +441,23 @@ class _DataRowState extends State<DataRow> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-        padding: EdgeInsets.all(8.0),
+        margin: EdgeInsets.symmetric(
+            vertical: 8, horizontal: 16), // Increase margin
+        padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.indigo[900]!),
-          borderRadius: BorderRadius.circular(10.0),
-          color: widget.isDimmed ? Colors.red[100] : Colors.grey[50],
+          border: Border.all(color: Colors.grey[300]!), // Lighter border color
+          borderRadius: BorderRadius.circular(22.0), // Rounder corners
+          color: widget.isDimmed
+              ? Colors.red[100]
+              : Colors.white, // White background
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2), // Shadow color
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: Offset(0, 2), // Shadow offset
+            ),
+          ],
         ),
         child: Column(
           children: [
@@ -449,27 +467,29 @@ class _DataRowState extends State<DataRow> {
                 Text(
                   widget.data['Name'],
                   style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey[900]),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey[900],
+                  ),
                 ),
                 Row(
                   children: [
                     InkWell(
                       onTap: () => _updateQuantity(-1),
                       child: Container(
-                        width: 40,
-                        height: 40,
+                        width: 32,
+                        height: 32,
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white),
-                          color: Colors.blueGrey[700],
-                          borderRadius: BorderRadius.circular(20.0),
+                          border: Border.all(color: Colors.blueGrey[700]!),
+                          color: Colors.white, // White background
+                          borderRadius:
+                              BorderRadius.circular(16.0), // Rounder corners
                         ),
                         child: Center(
                           child: Icon(
                             Icons.remove,
-                            color: Colors.white,
-                            size: 30,
+                            color: Colors.blueGrey[700],
+                            size: 24,
                           ),
                         ),
                       ),
@@ -479,7 +499,7 @@ class _DataRowState extends State<DataRow> {
                       child: Text(
                         '$_quantity',
                         style: TextStyle(
-                          fontSize: 25,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -487,18 +507,19 @@ class _DataRowState extends State<DataRow> {
                     InkWell(
                       onTap: () => _updateQuantity(1),
                       child: Container(
-                        width: 40,
-                        height: 40,
+                        width: 32,
+                        height: 32,
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white),
-                          color: Colors.blueGrey[700],
-                          borderRadius: BorderRadius.circular(20.0),
+                          border: Border.all(color: Colors.blueGrey[700]!),
+                          color: Colors.white, // White background
+                          borderRadius:
+                              BorderRadius.circular(16.0), // Rounder corners
                         ),
                         child: Center(
                           child: Icon(
                             Icons.add,
-                            color: Colors.white,
-                            size: 30,
+                            color: Colors.blueGrey[700],
+                            size: 24,
                           ),
                         ),
                       ),
@@ -507,7 +528,7 @@ class _DataRowState extends State<DataRow> {
                 ),
               ],
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 5),
             Row(
               //mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

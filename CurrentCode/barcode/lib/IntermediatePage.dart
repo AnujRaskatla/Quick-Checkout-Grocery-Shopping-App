@@ -70,49 +70,26 @@ class _IntermediatePageState extends State<IntermediatePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-              height: 100.0,
-              width: 100.0,
-              child: CircleAvatar(
-                backgroundColor: Colors.green,
-                child: Icon(
-                  Icons.check_circle,
-                  size: 48,
-                  color: Colors.white,
-                ),
-              ),
+              height: MediaQuery.of(context).size.height *
+                  0.60, // Adjust the height as needed
+              child: Image.asset('assets/ct.jpg'),
             ),
-            SizedBox(height: 20),
-            Text(
-              'Payment Successful',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            SizedBox(height: 40),
             Column(
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Icon(
-                      Icons.shopping_cart,
-                      size: 48,
-                      color: Colors.black,
-                    ),
-                    SizedBox(width: 10),
                     Text(
                       'Go to Exit Counter and place your cart',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 100),
+                // SizedBox(height: 100),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: Text(

@@ -104,7 +104,7 @@ class ScanBarcodePage extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.black,
           title: const Text(
-            'Select an Option:║▌║█║▌║▌║▌█ ',
+            'Select an Option:',
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -122,8 +122,17 @@ class ScanBarcodePage extends StatelessWidget {
                   );
 
                   if (barcode.isNotEmpty) {
-                    Provider.of<ScannedItemsModel>(context, listen: false)
-                        .addScannedItem(barcode);
+                    // Check if the scanned barcode already exists in the list
+                    ScannedItemsModel scannedItemsModel =
+                        Provider.of<ScannedItemsModel>(context, listen: false);
+
+                    if (scannedItemsModel.scannedItems.contains(barcode)) {
+                      // If the barcode exists, increment its quantity
+                      scannedItemsModel.incrementQuantity(barcode);
+                    } else {
+                      // If the barcode is new, add it to the list
+                      scannedItemsModel.addScannedItem(barcode);
+                    }
                   }
                 },
                 child: const Text('Start Barcode Scan'),
@@ -172,8 +181,17 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
           onPressed: () {
             String enteredBarcode = _barcodeController.text;
             if (enteredBarcode.isNotEmpty) {
-              Provider.of<ScannedItemsModel>(context, listen: false)
-                  .addScannedItem(enteredBarcode);
+              ScannedItemsModel scannedItemsModel =
+                  Provider.of<ScannedItemsModel>(context, listen: false);
+
+              if (scannedItemsModel.scannedItems.contains(enteredBarcode)) {
+                // If the barcode exists, increment its quantity
+                scannedItemsModel.incrementQuantity(enteredBarcode);
+              } else {
+                // If the barcode is new, add it to the list
+                scannedItemsModel.addScannedItem(enteredBarcode);
+              }
+
               Navigator.pop(context);
             }
           },
@@ -285,7 +303,7 @@ class ViewListPageState extends State<ViewListPage>
 
     return DataRow(
       cells: <DataCell>[
-        const DataCell(Text('Total')),
+        const DataCell(Text('Total:')),
         const DataCell(Text('')),
         const DataCell(Text('')),
         const DataCell(Text('')),
@@ -308,7 +326,7 @@ class ViewListPageState extends State<ViewListPage>
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
-          'Scanned Products',
+          'Scanned Products:',
           style: TextStyle(color: Colors.white),
         ),
       ),

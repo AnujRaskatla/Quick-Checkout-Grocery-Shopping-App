@@ -36,13 +36,34 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
       body: ListView(
         // Use ListView for scrolling
         children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height *
-                0.60, // Adjust the height as needed
-            child: Image.asset('assets/bs.jpg'),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.of(context)
+                          .pop(); // Go back to the previous page
+                    },
+                  ),
+                  Text(
+                    'Go back to Cart Scan',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+          // Adjust the height as needed
+          Image.asset('assets/bs.jpg'),
+
           Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(50.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -136,13 +157,19 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(40),
                     ),
                     elevation: 5,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    primary: Color(0xFFFF725E),
+                    primary: Colors.orange[900],
                   ),
-                  child: Text('Scan a Barcode', style: TextStyle(fontSize: 18)),
+                  child: Text(
+                    'Scan Barcode',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
@@ -158,14 +185,17 @@ class _ScanBarcodePageState extends State<ScanBarcodePage> {
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(40),
                     ),
                     elevation: 5,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    primary: Color(0xFFFF725E),
+                    primary: Colors.orange[900],
                   ),
-                  child:
-                      Text('Enter Barcode No.', style: TextStyle(fontSize: 18)),
+                  child: Text('Enter Barcode No.',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      )),
                 ),
               ],
             ),
@@ -261,7 +291,16 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                       if (existingIndex != -1) {
                         // Data is already present, increment quantity
                         widget.dataStore.updateQuantity(existingIndex, 1);
-                        _showDataPage(widget.dataStore.dataList);
+                        //_showDataPage(widget.dataStore.dataList);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DisplayPage(
+                              dataList: widget.dataStore.dataList,
+                              dataStore: widget.dataStore,
+                            ),
+                          ),
+                        );
                       } else {
                         // Data not found in dataList, fetch it from Firestore
                         _plistCollection
@@ -290,20 +329,21 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                           print('Error fetching document: $error');
                         });
                       }
+
                       // Navigator.push(
-                      // context,
-                      // MaterialPageRoute(
+                      //  context,
+                      //   MaterialPageRoute(
                       //  builder: (context) => DisplayPage(
-                      //   dataList: widget.dataStore.dataList,
-                      //   dataStore: widget.dataStore,
-                      // ),
-                      // ),
+                      //    dataList: widget.dataStore.dataList,
+                      //    dataStore: widget.dataStore,
+                      //  ),
+                      //  ),
                       // );
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFFFF725E),
-                    onPrimary: Colors.black,
+                    primary: Colors.orange[900],
+                    onPrimary: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
@@ -316,8 +356,8 @@ class ManualBarcodeEntryDialogState extends State<ManualBarcodeEntryDialog> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFFFF725E),
-                    onPrimary: Colors.black,
+                    primary: Colors.orange[900],
+                    onPrimary: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),

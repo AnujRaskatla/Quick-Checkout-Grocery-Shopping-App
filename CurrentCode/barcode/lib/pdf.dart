@@ -5,10 +5,10 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pdf/widgets.dart';
+import 'package:weigh/GlobalData.dart';
 
 class PDFGenerator {
-  static Future<void> generatePDF(
-      List<Map<String, dynamic>> dataList, String phoneNumber) async {
+  static Future<void> generatePDF(List<Map<String, dynamic>> dataList) async {
     final pdf = pw.Document();
 
     // Define custom styles for the document
@@ -64,7 +64,7 @@ class PDFGenerator {
 
     // Save the PDF to a file
     final output = await getTemporaryDirectory();
-    final fileName = '$phoneNumber-invoice.pdf';
+    final fileName = '${GlobalData.userEmail}-invoice.pdf';
     final file = File('${output.path}/$fileName');
     await file.writeAsBytes(await pdf.save());
 

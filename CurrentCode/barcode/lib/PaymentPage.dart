@@ -6,10 +6,7 @@ import 'IntermediatePage.dart';
 import 'GlobalData.dart';
 
 class PaymentPage extends StatefulWidget {
-  final String phoneNumber;
-  final int totalPriceInPaise;
-  const PaymentPage(
-      {required this.phoneNumber, required this.totalPriceInPaise});
+  const PaymentPage();
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
@@ -39,9 +36,7 @@ class _PaymentPageState extends State<PaymentPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => IntermediatePage(
-          phoneNumber: widget.phoneNumber,
-        ),
+        builder: (context) => IntermediatePage(),
       ),
     );
   }
@@ -60,13 +55,12 @@ class _PaymentPageState extends State<PaymentPage> {
   Future<void> initiateRazorpayPayment(BuildContext context) async {
     final options = {
       'key': 'rzp_test_PULsb8Zi0vfFig',
-      'amount':
-          widget.totalPriceInPaise, // Replace with the actual amount in paise
+      'amount': '10000', // Replace with the actual amount in paise
       'name': 'ZuppCart',
       'description': 'Payment for your order',
       'prefill': {
-        'contact': widget.phoneNumber,
-        'email': GlobalData.userName,
+        'contact': "",
+        'email': "${GlobalData.userEmail}",
       },
       'external': {
         'wallets': ['paytm'],
@@ -84,6 +78,16 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          'Go Back',
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -96,13 +100,14 @@ class _PaymentPageState extends State<PaymentPage> {
                   Icon(
                     Icons.payment,
                     size: 64.0,
-                    color: Colors.black,
+                    color: Colors.indigo[900],
                   ),
                   SizedBox(height: 16.0),
                   Text(
                     'Redirecting to Payment Gateway...',
                     style: TextStyle(
                       fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
                       color: Colors.indigo[900],
                     ),
                   ),

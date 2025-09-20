@@ -1,10 +1,8 @@
-// ignore_for_file: file_names, prefer_const_constructors, use_key_in_widget_constructors, use_build_context_synchronously, avoid_print, deprecated_member_use, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables
+// ignore_for_file: file_names, prefer_const_constructors, use_key_in_widget_constructors, use_build_context_synchronously, avoid_print, deprecated_member_use, prefer_const_constructors_in_immutables, library_private_types_in_public_api, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables, unused_local_variable
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'CartNumberPage.dart';
 import 'GlobalData.dart';
 
@@ -54,6 +52,9 @@ class PhoneEntryPage extends StatelessWidget {
                     try {
                       final GoogleSignInAccount? googleUser =
                           await googleSignIn.signIn();
+                      await googleSignIn.requestScopes(
+                          ['https://www.googleapis.com/auth/userinfo.profile']);
+
                       final GoogleSignInAuthentication googleAuth =
                           await googleUser!.authentication;
                       final AuthCredential credential =
@@ -61,10 +62,24 @@ class PhoneEntryPage extends StatelessWidget {
                         accessToken: googleAuth.accessToken,
                         idToken: googleAuth.idToken,
                       );
-                      final UserCredential authResult = await FirebaseAuth
-                          .instance
-                          .signInWithCredential(credential);
-                      final User user = authResult.user!;
+
+                      // Fetch user profile information
+                      final GoogleSignInAccount? currentUser =
+                          googleSignIn.currentUser;
+
+                      // Access the user's profile data
+                      if (currentUser != null) {
+                        // Access the user's profile data
+                        final String? name = currentUser.displayName;
+                        final String email = currentUser.email;
+
+                        // Set 'userName' and 'userEmail' in GlobalData
+                        GlobalData.setUserProfile(name, email);
+
+                        // Now you can use 'name', 'email', and 'photoUrl' as needed
+                        print('Name: $name');
+                        print('Email: $email');
+                      }
 
                       // Navigate to the SecondPage with a leftward swipe transition
                       Navigator.push(
@@ -72,8 +87,7 @@ class PhoneEntryPage extends StatelessWidget {
                         PageRouteBuilder(
                           pageBuilder: (context, animation,
                                   secondaryAnimation) =>
-                              SecondPage(
-                                  user), // Replace SecondPage() with your SecondPage
+                              ThirdPage(), // Replace SecondPage() with your SecondPage
                           transitionsBuilder:
                               (context, animation, secondaryAnimation, child) {
                             const begin = Offset(1.0, 0.0);
@@ -140,340 +154,107 @@ class PhoneEntryPage extends StatelessWidget {
   }
 }
 
-class SecondPage extends StatefulWidget {
-  final User user;
-
-  SecondPage(this.user);
-
-  @override
-  _SecondPageState createState() => _SecondPageState();
-}
-
-class _SecondPageState extends State<SecondPage> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController phoneNumberController = TextEditingController();
-  bool isInputValid = false; // To track whether the input is valid
-
-  @override
-  void initState() {
-    super.initState();
-    // Check if user data already exists in Firestore
-    getUserDataFromFirestore(widget.user.uid).then((userData) {
-      if (userData != null) {
-        // Data exists, populate the fields
-        nameController.text = userData['name'];
-        phoneNumberController.text = userData['phone_number'];
-        validateInput(); // Check input validity when data is populated
-      }
-    });
-  }
-
-  // Function to validate input and update isInputValid
-  void validateInput() {
-    final name = nameController.text;
-    final phoneNumber = phoneNumberController.text;
-    // Check if the name has at least one character and the phone number has exactly 10 digits
-    final isValid = name.isNotEmpty && phoneNumber.length == 10;
-    setState(() {
-      isInputValid = isValid;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: ListView(
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height *
-                0.60, // Adjust the height as needed
-            child: Image.asset('assets/sp.jpg'),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              // Add SingleChildScrollView to allow scrolling
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Great, You\'re Signed in!',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Enter the details below to continue',
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        child: TextFormField(
-                          controller: nameController,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.indigo[900], // Text color
-                          ),
-                          onChanged: (value) {
-                            if (value.isNotEmpty) {
-                              nameController.text =
-                                  value[0].toUpperCase() + value.substring(1);
-                              nameController.selection =
-                                  TextSelection.fromPosition(
-                                TextPosition(
-                                    offset: nameController.text.length),
-                              );
-                            }
-                            // Validate input whenever the name changes
-                            validateInput();
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'Name',
-                            labelStyle: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold,
-                              color: Colors.indigo[900], // Label text color
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors
-                                    .blue, // Border color when not focused
-                              ),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.blue, // Border color when focused
-                              ),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 16,
-                              horizontal: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Container(
-                        child: TextFormField(
-                          controller: phoneNumberController,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.indigo[900], // Text color
-                          ),
-                          keyboardType: TextInputType.phone,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter
-                                .digitsOnly, // Allow only digits
-                            LengthLimitingTextInputFormatter(
-                                10), // Limit input to 10 characters
-                          ],
-                          onChanged: (value) {
-                            // Validate input whenever the phone number changes
-                            validateInput();
-                          }, // Set keyboard type to phone
-                          decoration: InputDecoration(
-                            labelText: 'Phone Number',
-                            labelStyle: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold,
-                              color: Colors.indigo[900], // Label text color
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors
-                                    .blue, // Border color when not focused
-                              ),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.blue, // Border color when focused
-                              ),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 16,
-                              horizontal: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      if (isInputValid) // Display the icon only when input is valid
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            final name = nameController.text;
-                            final phoneNumber = phoneNumberController.text;
-
-                            // Store user data in Cloud Firestore
-                            final firestore = FirebaseFirestore.instance;
-                            await firestore
-                                .collection('users')
-                                .doc(widget.user.uid)
-                                .set({
-                              'name': name,
-                              'phone_number': phoneNumber,
-                            });
-                            // Update GlobalData
-                            GlobalData.userName = name;
-                            GlobalData.phoneNumber = phoneNumber;
-
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation,
-                                        secondaryAnimation) =>
-                                    ThirdPage(), // Replace SecondPage() with your SecondPage
-                                transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.easeInOut;
-                                  var tween =
-                                      Tween(begin: begin, end: end).chain(
-                                    CurveTween(curve: curve),
-                                  );
-                                  var offsetAnimation = animation.drive(tween);
-                                  return SlideTransition(
-                                    position: offsetAnimation,
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          icon: Icon(Icons.arrow_forward),
-                          label: Text(''),
-                          style: ElevatedButton.styleFrom(
-                            primary: Color(0xFFFF725E),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 20,
-                            ),
-                            shape: CircleBorder(),
-                            elevation: 5.0,
-                            alignment: Alignment.center,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-Future<Map<String, dynamic>?> getUserDataFromFirestore(String uid) async {
-  final firestore = FirebaseFirestore.instance;
-  final docSnapshot = await firestore.collection('users').doc(uid).get();
-
-  if (docSnapshot.exists) {
-    return docSnapshot.data() as Map<String, dynamic>;
-  } else {
-    return null;
-  }
-}
-
 class ThirdPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: ListView(
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height *
-                0.60, // Adjust the height as needed
-            child: Image.asset('assets/sq.jpg'),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              // Add SingleChildScrollView to allow scrolling
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+    return WillPopScope(
+      onWillPop: () async {
+        // Handle the back button press here
+        // You can use Navigator.pop to navigate to the previous page
+        Navigator.pop(context);
+        return false; // Return false to allow the back gesture
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: ListView(
+          children: [
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
                   children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      onPressed: () {
+                        // Navigate back when the back button is pressed
+                        Navigator.pop(context);
+                      },
+                    ),
                     Text(
-                      'Scan QR on your Cart',
+                      'Go Back',
                       style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        fontSize: 16,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
-                Text(
-                  'Press on the below button to Scan QR',
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                SizedBox(height: 30),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Navigate to the CartNumberPage
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            CartNumberPage(), // Replace SecondPage() with your SecondPage
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(1.0, 0.0);
-                          const end = Offset.zero;
-                          const curve = Curves.easeInOut;
-                          var tween = Tween(begin: begin, end: end).chain(
-                            CurveTween(curve: curve),
-                          );
-                          var offsetAnimation = animation.drive(tween);
-                          return SlideTransition(
-                            position: offsetAnimation,
-                            child: child,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  icon: Icon(Icons.qr_code_scanner),
-                  label: Text(''),
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xFFFF725E),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 20,
-                    ),
-                    shape: CircleBorder(),
-                    elevation: 5.0,
-                    alignment: Alignment.center,
-                  ),
-                ),
-                SizedBox(height: 90),
-              ],
+              ),
             ),
-          ),
-        ],
+            SizedBox(
+              height: MediaQuery.of(context).size.height *
+                  0.60, // Adjust the height as needed
+              child: Image.asset('assets/sq.jpg'),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                // Add SingleChildScrollView to allow scrolling
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Scan QR on your Cart',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Press on the below button to Scan QR',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigate to the new page here
+                      // You can use Navigator.push to navigate to the new page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CartNumberPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: CircleBorder(),
+                      primary: Colors.orange[900], // Change the color as needed
+                    ),
+                    child: SizedBox(
+                      width: 60, // Adjust the width of the circular button
+                      height: 60, // Adjust the height of the circular button
+                      child: Center(
+                        child: Icon(
+                          Icons.qr_code_scanner,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

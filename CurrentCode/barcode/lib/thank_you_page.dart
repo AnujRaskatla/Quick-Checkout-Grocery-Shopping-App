@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http; // Import the HTTP package
+import 'GlobalData.dart';
 
 class ThankYouPage extends StatelessWidget {
-  final String phoneNumber;
-
-  ThankYouPage({required this.phoneNumber});
+  ThankYouPage();
 
   Future<void> copyPDFLinkToClipboard(String fileName) async {
     final storage = FirebaseStorage.instance;
@@ -22,8 +22,26 @@ class ThankYouPage extends StatelessWidget {
       await Clipboard.setData(data);
 
       print('PDF link copied to clipboard.');
+
+      // Make an HTTP request to your server to send the email
+      final response = await http.post(
+        Uri.parse(
+            'http://65214e89474d2f4d4b49.appwrite.global/'), // Replace with your server's endpoint
+        body: {
+          'to': GlobalData.userEmail,
+          'subject': 'Your Shopping Bill PDF Link',
+          'html':
+              'Here is the link to the PDF with your shopping bill: <a href="$pdfUrl">Download PDF</a>',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Email sent successfully.');
+      } else {
+        print('Failed to send email. Status code: ${response.statusCode}');
+      }
     } catch (e) {
-      print('Error retrieving PDF download URL:$phoneNumber $e');
+      print('Error retrieving PDF download URL or sending email: $e');
     }
   }
 
@@ -58,7 +76,8 @@ class ThankYouPage extends StatelessWidget {
             SizedBox(height: 20),
             InkWell(
               onTap: () async {
-                await copyPDFLinkToClipboard('$phoneNumber-invoice.pdf');
+                await copyPDFLinkToClipboard(
+                    '${GlobalData.userEmail}-invoice.pdf');
               },
               child: RichText(
                 text: TextSpan(

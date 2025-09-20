@@ -6,9 +6,7 @@ import 'thank_you_page.dart';
 import 'GlobalData.dart';
 
 class IntermediatePage extends StatefulWidget {
-  final String phoneNumber;
-
-  IntermediatePage({required this.phoneNumber});
+  IntermediatePage();
 
   @override
   _IntermediatePageState createState() => _IntermediatePageState();
@@ -38,9 +36,7 @@ class _IntermediatePageState extends State<IntermediatePage> {
           // If status is "Weights Matched," navigate to ThankYouPage
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => ThankYouPage(
-                phoneNumber: widget.phoneNumber,
-              ),
+              builder: (context) => ThankYouPage(),
             ),
           );
         } else if (status == "Weights Not Matched") {
@@ -159,9 +155,7 @@ class _IntermediatePageState extends State<IntermediatePage> {
                 onPressed: () {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => ThankYouPage(
-                        phoneNumber: widget.phoneNumber,
-                      ),
+                      builder: (context) => ThankYouPage(),
                     ),
                   );
                 },

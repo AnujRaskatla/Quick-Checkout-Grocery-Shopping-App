@@ -475,6 +475,7 @@ class ReceivedWeightPage extends StatefulWidget {
 class ReceivedWeightPageState extends State<ReceivedWeightPage> {
   bool isReceivedWeightEqualToTotal = false;
   String fetchedWeight = 'N/A';
+
   @override
   void initState() {
     super.initState();
@@ -491,11 +492,21 @@ class ReceivedWeightPageState extends State<ReceivedWeightPage> {
         });
         print('Fetched Weight: $fetchedWeight');
         print('Total Weight: ${widget.totalWeight.toString()}');
-        // Update the equality check when fetched weight equals totalWeight
-        setState(() {
-          isReceivedWeightEqualToTotal =
-              fetchedWeight == widget.totalWeight.toString();
-        });
+
+        // Convert the fetched weight and total weight to double for comparison
+        double fetchedWeightValue = double.tryParse(fetchedWeight) ?? 0;
+        double totalWeightValue = widget.totalWeight.toDouble();
+
+        // Check if the absolute difference is within 50 units
+        if ((fetchedWeightValue - totalWeightValue).abs() <= 50) {
+          setState(() {
+            isReceivedWeightEqualToTotal = true;
+          });
+        } else {
+          setState(() {
+            isReceivedWeightEqualToTotal = false;
+          });
+        }
       } else {
         print('Request failed with status: ${response.statusCode}');
       }
@@ -510,46 +521,61 @@ class ReceivedWeightPageState extends State<ReceivedWeightPage> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
-          'Make Payment: ',
+          'Make Payment:',
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16.0), // Create a 2-row space after AppBar
-          Text(
-            'Fetched Weight: $fetchedWeight ',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          if (isReceivedWeightEqualToTotal)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Weighing Scale = Total Product Weight',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 16.0),
+            Text(
+              'Fetched Weight: $fetchedWeight ',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          const Spacer(), // Create empty space between content and button
-          // Additional spacer for the 2-row space above the button
-          Align(
-            alignment: Alignment.bottomCenter, // Align at the bottom center
-            child: ElevatedButton(
+            const SizedBox(height: 16.0),
+            if (isReceivedWeightEqualToTotal)
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  'Weighing Scale = Total Product Weight',
+                  style: TextStyle(
+                    color: Colors.green, // Change color to green for success
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            const Spacer(),
+            ElevatedButton(
               onPressed: () {
                 // Navigate to payment screen or perform payment logic here
                 // Navigator.pushNamed(context, '/payment');
               },
-              child: const Text('Make Payment'),
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                backgroundColor: Colors.grey,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Make Payment',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 40), // Add space after the button
+          ],
+        ),
       ),
     );
   }

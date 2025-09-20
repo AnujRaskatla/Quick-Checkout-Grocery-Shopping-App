@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:csv/csv.dart';
 import 'package:http/http.dart' as http;
-import 'package:excel/excel.dart';
-import 'dart:io';
 import 'pdf_generator.dart';
 import 'ScannedItemsModel.dart';
 import 'PaymentPage.dart';
@@ -146,90 +144,6 @@ class ViewListPageState extends State<ViewListPage>
     );
   }
 
-  Future<void> createXLSXFile(List<String> scannedItems,
-      Map<String, List<String>> barcodeToInfoMap) async {
-    final excel = Excel.createExcel();
-    final sheet = excel['Sheet1'];
-
-    // Adding headers
-    sheet.appendRow(
-        ['Qty', 'S.no', 'Name', 'Barcode Number', 'Price', 'Weight']);
-
-    for (int index = 0; index < scannedItems.length; index++) {
-      String scannedItem = scannedItems[index];
-      List<String> info =
-          barcodeToInfoMap[scannedItem] ?? ['N/A', '0.0', '0.0'];
-      int quantity = widget.scannedItemsModel
-          .getQuantity(scannedItem); // Use widget to access the variable
-      double initialPrice = double.tryParse(info[1]) ?? 0.0;
-      double initialWeight = double.tryParse(info[2]) ?? 0.0;
-      double updatedPrice = initialPrice * quantity;
-      double updatedWeight = initialWeight * quantity;
-
-      sheet.appendRow([
-        quantity.toString(),
-        (index + 1).toString(),
-        info.length > 0 ? info[0] : 'N/A',
-        scannedItem,
-        updatedPrice.toStringAsFixed(2),
-        updatedWeight.toStringAsFixed(2),
-      ]);
-    }
-
-    final file = File('${Directory.systemTemp.path}/scanned_items.xlsx');
-    final excelData =
-        excel.encode(); // Use final variable to store the encoded data
-    if (excelData != null) {
-      await file.writeAsBytes(excelData);
-
-      print('XLSX file saved at: ${file.path}');
-    } else {
-      print('Failed to create XLSX data.');
-    }
-  }
-
-  Future<void> fetchAndCompareWeight(
-      ScannedItemsModel scannedItemsModel) async {
-    final weightResponse = await http.get(
-        Uri.parse('http://192.168.50.35/getWeight')); // Replace with your URL
-
-    if (weightResponse.statusCode == 200) {
-      double fetchedWeight = double.tryParse(weightResponse.body) ?? 0.0;
-
-      // Compare fetchedWeight with totalWeight
-      double totalWeight = 0.0;
-      for (String scannedItem in scannedItemsModel.scannedItems) {
-        List<String> info =
-            barcodeToInfoMap[scannedItem] ?? ['N/A', '0.0', '0.0'];
-        double weight = double.tryParse(info[2]) ?? 0.0;
-        int quantity = scannedItemsModel.getQuantity(scannedItem);
-        totalWeight += weight * quantity;
-      }
-
-      setState(() {
-        this.fetchedWeight = fetchedWeight;
-      });
-
-      if (fetchedWeight == totalWeight) {
-        // Weight matches
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fetched weight matches total weight.')),
-        );
-      } else {
-        // Weight does not match
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Fetched weight does not match total weight.')),
-        );
-      }
-    } else {
-      // Error fetching weight data
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to fetch weight data.')),
-      );
-    }
-  }
-
   @override
   bool get wantKeepAlive => true;
 
@@ -290,69 +204,33 @@ class ViewListPageState extends State<ViewListPage>
             ),
           ),
           Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => fetchAndCompareWeight(scannedItemsModel),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      backgroundColor: Colors.grey[300],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(
-                            color: Colors.grey[
-                                300]!), // Set the button text color to black
-                      ),
-                    ),
-                    child: const Text('Fetch Weight'),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Fetched Weight: $fetchedWeight',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await createXLSXFile(scannedItems, barcodeToInfoMap);
-                        await PdfGenerator.createPDF(
-                            scannedItems,
-                            barcodeToInfoMap,
-                            scannedItemsModel,
-                            GlobalData.phoneNumber);
+            alignment: Alignment.bottomRight,
+            child: ElevatedButton(
+              onPressed: () async {
+                await PdfGenerator.createPDF(scannedItems, barcodeToInfoMap,
+                    scannedItemsModel, GlobalData.phoneNumber);
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PaymentPage(
-                              scannedItems: scannedItems,
-                              barcodeToInfoMap: barcodeToInfoMap,
-                              scannedItemsModel: scannedItemsModel,
-                              phoneNumber: GlobalData.phoneNumber,
-                            ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.grey[300],
-                        onPrimary: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(color: Colors.grey[300]!),
-                        ),
-                      ),
-                      child: Text('Done Shopping'),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PaymentPage(
+                      scannedItems: scannedItems,
+                      barcodeToInfoMap: barcodeToInfoMap,
+                      scannedItemsModel: scannedItemsModel,
+                      phoneNumber: GlobalData.phoneNumber,
                     ),
                   ),
-                ],
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.grey[300],
+                onPrimary: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: Colors.grey[300]!),
+                ),
               ),
+              child: Text('Done Shopping'),
             ),
           ),
         ],

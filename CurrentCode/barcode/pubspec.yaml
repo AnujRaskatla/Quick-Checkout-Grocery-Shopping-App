@@ -57,7 +57,7 @@ dependencies:
   mailer: ^6.0.1
   appwrite: ^11.0.0
   google_fonts: ^6.1.0
-  scroll_to_index: ^3.0.1
+
   
 
   
